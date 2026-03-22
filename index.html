@@ -473,6 +473,11 @@ canvasArea.addEventListener('touchend', e => {
 
 function snapIconTo(id, x, y) {
   const l = iconLayers.find(l=>l.id===id); if (!l) return;
+  // Offset by half the rendered size so the icon centres on the clicked point
+  const hw = l.img ? Math.round(l.img.width  * l.scale / 100 / 2) : 0;
+  const hh = l.img ? Math.round(l.img.height * l.scale / 100 / 2) : 0;
+  x = Math.max(0, x - hw);
+  y = Math.max(0, y - hh);
   l.x=x; l.y=y;
   ['','Mob'].forEach(sfx => {
     const xs=document.getElementById(`ix_${id}${sfx}`), xn=document.getElementById(`ixn_${id}${sfx}`);
