@@ -8,275 +8,146 @@
   @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Barlow+Condensed:wght@400;600;700;900&display=swap');
 
   :root {
-    --bg: #0f0f0f;
-    --panel: #1a1a1a;
-    --border: #2e2e2e;
-    --accent: #e8c84a;
-    --accent2: #e05c3a;
-    --text: #d4d4d4;
-    --muted: #666;
-    --input-bg: #111;
+    --bg: #0f0f0f; --panel: #1a1a1a; --border: #2e2e2e;
+    --accent: #e8c84a; --accent2: #e05c3a; --text: #d4d4d4;
+    --muted: #666; --input-bg: #111;
   }
 
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
   html, body { height: 100%; overflow: hidden; touch-action: none; }
+  body { background: var(--bg); color: var(--text); font-family: 'Barlow Condensed', sans-serif; font-size: 15px; display: flex; flex-direction: column; }
 
-  body {
-    background: var(--bg);
-    color: var(--text);
-    font-family: 'Barlow Condensed', sans-serif;
-    font-size: 15px;
-    display: flex;
-    flex-direction: column;
-  }
-
-  /* ── HEADER ── */
-  header {
-    flex-shrink: 0;
-    padding: 12px 24px;
-    border-bottom: 2px solid var(--accent);
-    display: flex;
-    align-items: center;
-    gap: 16px;
-    background: #111;
-    z-index: 10;
-  }
-  header h1 { font-size: 20px; font-weight: 900; letter-spacing: 3px; text-transform: uppercase; color: var(--accent); }
+  header { flex-shrink: 0; padding: 10px 20px; border-bottom: 2px solid var(--accent); display: flex; align-items: center; gap: 12px; background: #111; z-index: 10; }
+  header h1 { font-size: 18px; font-weight: 900; letter-spacing: 3px; text-transform: uppercase; color: var(--accent); }
   header span { font-family: 'Share Tech Mono', monospace; font-size: 10px; color: var(--muted); letter-spacing: 1px; }
 
-  /* ── DESKTOP WORKSPACE ── */
   .workspace { flex: 1; min-height: 0; display: flex; overflow: hidden; }
 
-  /* ── SIDEBAR (desktop) ── */
-  .sidebar {
-    width: 310px; min-width: 310px; flex-shrink: 0;
-    background: var(--panel);
-    border-right: 1px solid var(--border);
-    overflow-y: auto; overflow-x: hidden;
-    height: 100%;
-  }
-
+  /* SIDEBAR */
+  .sidebar { width: 310px; min-width: 310px; flex-shrink: 0; background: var(--panel); border-right: 1px solid var(--border); overflow-y: auto; overflow-x: hidden; height: 100%; }
   .section { border-bottom: 1px solid var(--border); }
-
-  .section-title {
-    font-size: 10px; font-weight: 700; letter-spacing: 3px; text-transform: uppercase;
-    color: var(--accent);
-    display: flex; align-items: center; gap: 8px;
-    padding: 11px 16px;
-    cursor: pointer; user-select: none;
-    transition: background 0.15s;
-  }
+  .section-title { font-size: 10px; font-weight: 700; letter-spacing: 3px; text-transform: uppercase; color: var(--accent); display: flex; align-items: center; gap: 8px; padding: 10px 14px; cursor: pointer; user-select: none; transition: background 0.15s; }
   .section-title:hover { background: rgba(232,200,74,0.05); }
   .section-title::before { content: ''; width: 8px; height: 2px; background: var(--accent); flex-shrink: 0; }
-  .section-title .chev { margin-left: auto; font-size: 12px; color: var(--muted); transition: transform 0.2s; }
+  .section-title .chev { margin-left: auto; font-size: 11px; color: var(--muted); transition: transform 0.2s; }
   .section-title.closed .chev { transform: rotate(-90deg); }
-  .section-body { padding: 0 16px 12px; }
+  .section-body { padding: 0 14px 12px; }
   .section-body.closed { display: none; }
 
-  /* ── CANVAS PANE ── */
-  .canvas-area {
-    flex: 1; min-width: 0; height: 100%;
-    position: relative; overflow: hidden;
-    background:
-      repeating-linear-gradient(0deg, transparent, transparent 24px, #1c1c1c 24px, #1c1c1c 25px),
-      repeating-linear-gradient(90deg, transparent, transparent 24px, #1c1c1c 24px, #1c1c1c 25px),
-      #0f0f0f;
-    cursor: default;
-  }
+  /* CANVAS */
+  .canvas-area { flex: 1; min-width: 0; height: 100%; position: relative; overflow: hidden; background: repeating-linear-gradient(0deg, transparent, transparent 24px, #1c1c1c 24px, #1c1c1c 25px), repeating-linear-gradient(90deg, transparent, transparent 24px, #1c1c1c 24px, #1c1c1c 25px), #0f0f0f; cursor: default; }
   #viewport { position: absolute; top: 0; left: 0; transform-origin: 0 0; will-change: transform; }
   #c { display: block; box-shadow: 0 0 0 1px var(--border), 0 8px 40px rgba(0,0,0,0.6); }
+  /* Grid overlay canvas sits exactly on top of main canvas */
+  #gridCanvas { position: absolute; top: 0; left: 0; pointer-events: none; }
+  .canvas-hint { position: absolute; bottom: 10px; left: 50%; transform: translateX(-50%); font-size: 10px; letter-spacing: 1px; color: var(--muted); font-family: 'Share Tech Mono', monospace; white-space: nowrap; pointer-events: none; background: rgba(0,0,0,0.5); padding: 3px 10px; }
+  .zoom-badge { position: absolute; top: 10px; right: 12px; font-family: 'Share Tech Mono', monospace; font-size: 11px; color: var(--accent); background: rgba(0,0,0,0.6); padding: 3px 8px; pointer-events: none; border: 1px solid var(--border); }
 
-  .canvas-hint {
-    position: absolute; bottom: 12px; left: 50%; transform: translateX(-50%);
-    font-size: 10px; letter-spacing: 1px; color: var(--muted);
-    font-family: 'Share Tech Mono', monospace; white-space: nowrap;
-    pointer-events: none; background: rgba(0,0,0,0.5); padding: 4px 10px;
-  }
-  .zoom-badge {
-    position: absolute; top: 12px; right: 14px;
-    font-family: 'Share Tech Mono', monospace; font-size: 11px; color: var(--accent);
-    background: rgba(0,0,0,0.6); padding: 3px 8px; pointer-events: none; border: 1px solid var(--border);
-  }
-
-  /* ── SHARED CONTROLS ── */
+  /* INPUTS */
   label { display: block; font-size: 10px; letter-spacing: 1px; color: var(--muted); margin-bottom: 3px; text-transform: uppercase; }
-
-  input[type="text"], input[type="number"], input[type="url"], select, textarea {
-    width: 100%; background: var(--input-bg); border: 1px solid var(--border);
-    color: var(--text); padding: 6px 9px;
-    font-family: 'Share Tech Mono', monospace; font-size: 12px;
-    outline: none; margin-bottom: 8px; transition: border-color 0.15s;
-  }
-  textarea { resize: vertical; min-height: 50px; line-height: 1.5; }
+  input[type="text"], input[type="number"], input[type="url"], select, textarea { width: 100%; background: var(--input-bg); border: 1px solid var(--border); color: var(--text); padding: 6px 8px; font-family: 'Share Tech Mono', monospace; font-size: 12px; outline: none; margin-bottom: 7px; transition: border-color 0.15s; }
+  textarea { resize: vertical; min-height: 48px; line-height: 1.5; }
   input:focus, textarea:focus, select:focus { border-color: var(--accent); }
 
-  .btn {
-    display: block; width: 100%; padding: 8px 10px;
-    background: transparent; border: 1px solid var(--accent); color: var(--accent);
-    font-family: 'Barlow Condensed', sans-serif; font-size: 12px; font-weight: 700;
-    letter-spacing: 2px; text-transform: uppercase; cursor: pointer;
-    transition: background 0.15s, color 0.15s; margin-bottom: 6px;
-  }
+  .btn { display: block; width: 100%; padding: 8px 10px; background: transparent; border: 1px solid var(--accent); color: var(--accent); font-family: 'Barlow Condensed', sans-serif; font-size: 12px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; cursor: pointer; transition: background 0.15s, color 0.15s; margin-bottom: 6px; }
   .btn:hover { background: var(--accent); color: #000; }
   .btn-primary { background: var(--accent); color: #000; }
   .btn-primary:hover { background: #ffd84a; }
   .btn-sm { font-size: 11px; padding: 5px 8px; }
+  .btn-row { display: flex; gap: 6px; margin-bottom: 6px; }
+  .btn-row .btn { flex: 1; margin-bottom: 0; }
 
-  .drop-zone {
-    border: 2px dashed var(--border); padding: 14px; text-align: center;
-    color: var(--muted); font-size: 11px; letter-spacing: 1px;
-    cursor: pointer; transition: border-color 0.2s, color 0.2s; margin-bottom: 8px;
-  }
+  .drop-zone { border: 2px dashed var(--border); padding: 12px; text-align: center; color: var(--muted); font-size: 11px; letter-spacing: 1px; cursor: pointer; transition: border-color 0.2s, color 0.2s; margin-bottom: 7px; }
   .drop-zone:hover, .drop-zone.over { border-color: var(--accent); color: var(--accent); }
   .drop-zone input[type="file"] { display: none; }
 
-  .slider-row { display: flex; align-items: center; gap: 6px; margin-bottom: 8px; }
-  .axis-lbl { width: 14px; min-width: 14px; font-size: 10px; font-weight: 700; color: var(--accent); font-family: 'Share Tech Mono', monospace; text-align: center; }
+  /* SLIDERS */
+  .slider-row { display: flex; align-items: center; gap: 5px; margin-bottom: 7px; }
+  .axis-lbl { width: 14px; min-width: 14px; font-size: 10px; font-weight: 700; color: var(--accent); font-family: 'Share Tech Mono', monospace; text-align: center; cursor: pointer; user-select: none; }
+  .axis-lbl:hover { color: #fff; }
   .slider-row input[type="range"] { flex: 1; accent-color: var(--accent); margin-bottom: 0; cursor: pointer; }
-  .num-val { width: 56px; min-width: 56px; background: var(--input-bg); border: 1px solid var(--border); color: var(--text); padding: 4px 5px; font-family: 'Share Tech Mono', monospace; font-size: 11px; outline: none; text-align: right; margin-bottom: 0; }
+  .num-val { width: 52px; min-width: 52px; background: var(--input-bg); border: 1px solid var(--border); color: var(--text); padding: 3px 4px; font-family: 'Share Tech Mono', monospace; font-size: 11px; outline: none; text-align: right; margin-bottom: 0; }
   .num-val:focus { border-color: var(--accent); }
 
-  .text-layers, .icon-layers { display: flex; flex-direction: column; gap: 8px; }
-
-  .text-layer {
-    background: #111; border: 1px solid var(--border); padding: 10px;
-  }
-  .layer-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
-  .layer-title { font-size: 10px; font-weight: 700; letter-spacing: 2px; color: var(--accent); text-transform: uppercase; }
-  .layer-remove { background: none; border: none; color: var(--muted); cursor: pointer; font-size: 15px; padding: 0 4px; line-height: 1; }
+  /* LAYER CARDS */
+  .layers-list { display: flex; flex-direction: column; gap: 7px; }
+  .layer-card { background: #111; border: 1px solid var(--border); padding: 9px; }
+  .layer-header { display: flex; align-items: center; gap: 4px; margin-bottom: 8px; }
+  .layer-drag { color: var(--muted); cursor: grab; font-size: 14px; padding: 0 3px; user-select: none; touch-action: none; }
+  .layer-drag:active { cursor: grabbing; color: var(--accent); }
+  /* Prevent sliders/inputs inside cards from triggering the card's dragstart */
+  .layer-card input, .layer-card select, .layer-card textarea, .layer-card button { -webkit-user-drag: none; }
+  .layer-title { font-size: 10px; font-weight: 700; letter-spacing: 2px; color: var(--accent); text-transform: uppercase; flex: 1; }
+  .layer-remove { background: none; border: none; color: var(--muted); cursor: pointer; font-size: 15px; padding: 0 3px; line-height: 1; }
   .layer-remove:hover { color: var(--accent2); }
 
-  .row { display: flex; gap: 8px; }
+  .row { display: flex; gap: 7px; }
   .row > * { flex: 1; }
-
-  .color-row { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
-  .color-row input[type="color"] { width: 32px; height: 25px; border: 1px solid var(--border); padding: 2px; background: var(--input-bg); cursor: pointer; flex-shrink: 0; }
+  .color-row { display: flex; align-items: center; gap: 7px; margin-bottom: 7px; }
+  .color-row input[type="color"] { width: 30px; height: 24px; border: 1px solid var(--border); padding: 2px; background: var(--input-bg); cursor: pointer; flex-shrink: 0; }
   .color-row input[type="text"] { flex: 1; margin-bottom: 0; }
+  .check-row { display: flex; gap: 12px; margin-bottom: 7px; }
+  .check-row label { display: flex; align-items: center; gap: 4px; cursor: pointer; margin-bottom: 0; font-size: 11px; color: var(--text); text-transform: none; letter-spacing: 0; }
+  input[type="checkbox"] { accent-color: var(--accent); width: 12px; height: 12px; cursor: pointer; }
 
-  .check-row { display: flex; gap: 14px; margin-bottom: 8px; }
-  .check-row label { display: flex; align-items: center; gap: 5px; cursor: pointer; margin-bottom: 0; font-size: 11px; color: var(--text); text-transform: none; letter-spacing: 0; }
-  input[type="checkbox"] { accent-color: var(--accent); width: 13px; height: 13px; cursor: pointer; }
-
-  .font-combo-wrap { position: relative; margin-bottom: 8px; }
+  /* FONT COMBO */
+  .font-combo-wrap { position: relative; margin-bottom: 7px; }
   .font-combo-wrap input[type="text"] { margin-bottom: 0; width: 100%; }
-  .font-dd { position: absolute; top: 100%; left: 0; right: 0; max-height: 200px; overflow-y: auto; background: #1e1e1e; border: 1px solid var(--accent); border-top: none; z-index: 500; display: none; }
+  .font-dd { position: absolute; top: 100%; left: 0; right: 0; max-height: 190px; overflow-y: auto; background: #1e1e1e; border: 1px solid var(--accent); border-top: none; z-index: 500; display: none; }
   .font-dd.open { display: block; }
   .font-opt { padding: 6px 10px; font-size: 13px; cursor: pointer; color: var(--text); border-bottom: 1px solid #222; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .font-opt:hover { background: rgba(232,200,74,0.12); color: var(--accent); }
 
-  .tag { display: inline-block; background: rgba(232,200,74,0.12); color: var(--accent); border: 1px solid rgba(232,200,74,0.3); padding: 2px 7px; font-size: 10px; letter-spacing: 1px; font-family: 'Share Tech Mono', monospace; margin-bottom: 8px; }
-  .hint { font-size: 10px; color: var(--muted); letter-spacing: 0.5px; margin-bottom: 8px; }
-  .err { font-size: 10px; color: var(--accent2); letter-spacing: 0.5px; margin-bottom: 6px; display: none; }
-
-  .font-chips { display: flex; flex-wrap: wrap; gap: 5px; margin-bottom: 8px; }
-  .font-chip { display: flex; align-items: center; gap: 4px; background: rgba(232,200,74,0.1); border: 1px solid rgba(232,200,74,0.3); padding: 2px 8px; font-family: 'Share Tech Mono', monospace; font-size: 10px; color: var(--accent); }
+  /* MISC */
+  .tag { display: inline-block; background: rgba(232,200,74,0.12); color: var(--accent); border: 1px solid rgba(232,200,74,0.3); padding: 2px 7px; font-size: 10px; letter-spacing: 1px; font-family: 'Share Tech Mono', monospace; margin-bottom: 7px; }
+  .hint { font-size: 10px; color: var(--muted); letter-spacing: 0.4px; margin-bottom: 7px; line-height: 1.4; }
+  .err { font-size: 10px; color: var(--accent2); letter-spacing: 0.5px; margin-bottom: 5px; display: none; }
+  .font-chips { display: flex; flex-wrap: wrap; gap: 4px; margin-bottom: 7px; }
+  .font-chip { display: flex; align-items: center; gap: 4px; background: rgba(232,200,74,0.1); border: 1px solid rgba(232,200,74,0.3); padding: 2px 7px; font-family: 'Share Tech Mono', monospace; font-size: 10px; color: var(--accent); }
   .chip-remove { background: none; border: none; color: var(--muted); cursor: pointer; font-size: 13px; padding: 0; line-height: 1; }
   .chip-remove:hover { color: var(--accent2); }
 
-  /* ════════════════════════════════════════════
-     MOBILE  ≤ 768px
-     Canvas fills top, bottom drawer with tabs
-     ════════════════════════════════════════════ */
-  .mob-tabs   { display: none; }
-  .mob-panels { display: none; }
+  /* SUBSECTION */
+  .sub-label { font-size: 9px; font-weight: 700; letter-spacing: 2px; color: var(--muted); text-transform: uppercase; margin: 8px 0 5px; padding-bottom: 3px; border-bottom: 1px solid var(--border); }
+
+  /* GRID TOGGLE */
+  .grid-row { display: flex; align-items: center; gap: 8px; margin-bottom: 7px; }
+  .grid-row label { margin-bottom: 0; display: flex; align-items: center; gap: 5px; text-transform: none; font-size: 11px; color: var(--text); cursor: pointer; }
+
+  /* ════ MOBILE ≤768px ════ */
+  .mob-tabs, .mob-panels { display: none; }
 
   @media (max-width: 768px) {
-    header { padding: 10px 16px; }
-    header h1 { font-size: 15px; letter-spacing: 2px; }
+    header { padding: 9px 14px; }
+    header h1 { font-size: 14px; letter-spacing: 2px; }
     header span { display: none; }
-
-    /* Stack vertically: canvas on top, drawer on bottom */
     .workspace { flex-direction: column; }
-
-    /* Canvas fills remaining space above drawer */
     .canvas-area { flex: 1; min-height: 0; height: auto !important; }
-
-    .canvas-hint { font-size: 9px; letter-spacing: 0; white-space: normal; text-align: center; max-width: 90%; }
-
-    /* ── DRAWER / SIDEBAR ── */
-    .sidebar {
-      width: 100% !important;
-      min-width: unset !important;
-      height: auto;
-      border-right: none;
-      border-top: 2px solid var(--accent);
-      flex-shrink: 0;
-      overflow: visible;
-      display: flex;
-      flex-direction: column;
-      /* Collapsed = just tab bar (48px); expanded = up to 52vh */
-      max-height: 48px;
-      transition: max-height 0.28s ease;
-    }
-    .sidebar.open { max-height: 52vh; }
-
-    /* Hide desktop collapsible sections on mobile */
+    .canvas-hint { font-size: 9px; white-space: normal; text-align: center; max-width: 90%; }
+    .sidebar { width: 100% !important; min-width: unset !important; height: auto; border-right: none; border-top: 2px solid var(--accent); flex-shrink: 0; overflow: visible; display: flex; flex-direction: column; max-height: 48px; transition: max-height 0.28s ease; }
+    .sidebar.open { max-height: 55vh; }
     .sidebar > .section { display: none; }
-
-    /* ── TAB BAR ── */
-    .mob-tabs {
-      display: flex;
-      flex-shrink: 0;
-      background: #111;
-      overflow-x: auto;
-      scrollbar-width: none;
-      height: 48px;
-    }
+    .mob-tabs { display: flex; flex-shrink: 0; background: #111; overflow-x: auto; scrollbar-width: none; height: 48px; }
     .mob-tabs::-webkit-scrollbar { display: none; }
-
-    .mob-tab {
-      flex-shrink: 0;
-      padding: 0 16px;
-      height: 48px;
-      display: flex; align-items: center;
-      font-size: 11px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase;
-      color: var(--muted); cursor: pointer;
-      border-bottom: 2px solid transparent;
-      white-space: nowrap;
-      transition: color 0.15s, border-color 0.15s;
-      user-select: none;
-    }
+    .mob-tab { flex-shrink: 0; padding: 0 14px; height: 48px; display: flex; align-items: center; font-size: 10px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--muted); cursor: pointer; border-bottom: 2px solid transparent; white-space: nowrap; transition: color 0.15s, border-color 0.15s; user-select: none; }
     .mob-tab.active { color: var(--accent); border-bottom-color: var(--accent); }
-
-    .mob-toggle {
-      margin-left: auto; flex-shrink: 0;
-      padding: 0 16px; height: 48px;
-      display: flex; align-items: center;
-      color: var(--muted); cursor: pointer; font-size: 18px;
-      transition: transform 0.28s;
-      user-select: none;
-    }
+    .mob-toggle { margin-left: auto; flex-shrink: 0; padding: 0 14px; height: 48px; display: flex; align-items: center; color: var(--muted); cursor: pointer; font-size: 17px; transition: transform 0.28s; user-select: none; }
     .sidebar.open .mob-toggle { transform: rotate(180deg); }
-
-    /* ── PANELS ── */
     .mob-panels { display: block; flex: 1; overflow-y: auto; overflow-x: hidden; }
-    .mob-panel { display: none; padding: 12px 16px 16px; }
+    .mob-panel { display: none; padding: 11px 14px 14px; }
     .mob-panel.active { display: block; }
-
-    /* Bigger touch targets */
-    .btn { padding: 13px 10px; font-size: 15px; margin-bottom: 8px; }
-    .btn-sm { padding: 10px 8px; font-size: 13px; }
-
-    input[type="text"], input[type="number"], input[type="url"], select, textarea {
-      padding: 10px 9px; font-size: 15px; margin-bottom: 10px;
-    }
-
-    .slider-row { margin-bottom: 12px; }
-    .slider-row input[type="range"] { height: 32px; }
-    .num-val { width: 64px; min-width: 64px; padding: 8px 6px; font-size: 13px; }
-
-    label { font-size: 12px; margin-bottom: 5px; }
-    .drop-zone { padding: 22px 14px; font-size: 14px; }
-
-    .text-layer { padding: 12px; }
-    .layer-title { font-size: 12px; }
-    .layer-remove { font-size: 22px; padding: 0 6px; }
-
-    .hint { font-size: 12px; }
-    .tag { font-size: 11px; padding: 3px 9px; }
-
-    .font-opt { font-size: 15px; padding: 10px; }
-    .font-dd { max-height: 160px; }
+    .btn { padding: 12px 10px; font-size: 14px; margin-bottom: 8px; }
+    .btn-sm { padding: 9px 8px; font-size: 12px; }
+    input[type="text"], input[type="number"], input[type="url"], select, textarea { padding: 9px 8px; font-size: 14px; margin-bottom: 9px; }
+    .slider-row { margin-bottom: 11px; }
+    .slider-row input[type="range"] { height: 30px; }
+    .num-val { width: 62px; min-width: 62px; padding: 7px 5px; font-size: 13px; }
+    label { font-size: 11px; margin-bottom: 4px; }
+    .drop-zone { padding: 20px 12px; font-size: 13px; }
+    .layer-card { padding: 11px; }
+    .layer-title { font-size: 11px; }
+    .layer-remove { font-size: 20px; }
+    .font-opt { font-size: 14px; padding: 9px 10px; }
   }
 </style>
 </head>
@@ -284,193 +155,234 @@
 
 <header>
   <h1>Stamp Composer</h1>
-  <span>PNG LAYER TOOL — v6</span>
+  <span>PNG LAYER TOOL — v7</span>
 </header>
 
 <div class="workspace">
 
-  <!-- ══ SIDEBAR (desktop) / DRAWER (mobile) ══ -->
   <div class="sidebar" id="sidebar">
 
-    <!-- MOBILE UI: tab bar + panels -->
+    <!-- ══ MOBILE TAB BAR ══ -->
     <div class="mob-tabs">
       <div class="mob-tab active" data-panel="base"   onclick="mobTab(this)">Base</div>
       <div class="mob-tab"        data-panel="icons"  onclick="mobTab(this)">Icons</div>
       <div class="mob-tab"        data-panel="text"   onclick="mobTab(this)">Text</div>
       <div class="mob-tab"        data-panel="fonts"  onclick="mobTab(this)">Fonts</div>
+      <div class="mob-tab"        data-panel="canvas" onclick="mobTab(this)">Canvas</div>
       <div class="mob-tab"        data-panel="export" onclick="mobTab(this)">Export</div>
       <div class="mob-toggle" onclick="toggleDrawer()">▲</div>
     </div>
 
     <div class="mob-panels">
       <div class="mob-panel active" id="mob-base">
-        <div class="drop-zone" onclick="document.getElementById('baseFileMob').click()">
-          Tap to load base stamp image
-          <input type="file" id="baseFileMob" accept="image/*">
-        </div>
-        <label>Or image URL</label>
+        <div class="drop-zone" onclick="document.getElementById('baseFileMob').click()">Tap to load base stamp<input type="file" id="baseFileMob" accept="image/*"></div>
+        <label>Or URL</label>
         <input type="url" id="baseUrlMob" placeholder="https://...">
-        <div class="err" id="baseErrMob">Could not load — try loading as file instead.</div>
+        <div class="err" id="baseErrMob">Could not load — try as file.</div>
         <button class="btn" onclick="loadBaseFromUrlMob()">Load from URL</button>
+        <div class="sub-label">Rotation</div>
+        <div class="slider-row">
+          <span class="axis-lbl" title="Double-click to reset" ondblclick="resetSlider('baseRotMob','baseRotNMob',0);syncBaseRot()">°</span>
+          <input type="range" id="baseRotMob" min="-180" max="180" value="0" oninput="sv('baseRotMob','baseRotNMob');syncBaseRot();render()" ondblclick="resetSlider('baseRotMob','baseRotNMob',0);syncBaseRot()">
+          <input type="number" class="num-val" id="baseRotNMob" value="0" min="-180" max="180" onchange="ns('baseRotNMob','baseRotMob');syncBaseRot();render()">
+        </div>
       </div>
-
       <div class="mob-panel" id="mob-icons">
-        <div class="icon-layers" id="iconLayersMob"></div>
+        <div class="layers-list" id="iconLayersMob"></div>
         <button class="btn" onclick="addIconLayer(true)" style="margin-top:8px">+ Add Icon Layer</button>
       </div>
-
       <div class="mob-panel" id="mob-text">
-        <div class="text-layers" id="textLayersMob"></div>
+        <div class="layers-list" id="textLayersMob"></div>
         <button class="btn" onclick="addTextLayer(true)" style="margin-top:8px">+ Add Text Layer</button>
       </div>
-
       <div class="mob-panel" id="mob-fonts">
-        <p class="hint">Load .ttf / .otf / .woff files. They appear in all font dropdowns.</p>
-        <div class="drop-zone" onclick="document.getElementById('fontFileMob').click()">
-          Tap to load font file
-          <input type="file" id="fontFileMob" accept=".ttf,.otf,.woff,.woff2" multiple>
-        </div>
+        <p class="hint">Load .ttf/.otf/.woff files — appear in all font dropdowns.</p>
+        <div class="drop-zone" onclick="document.getElementById('fontFileMob').click()">Tap to load font<input type="file" id="fontFileMob" accept=".ttf,.otf,.woff,.woff2" multiple></div>
         <div class="font-chips" id="fontChipsMob"></div>
       </div>
-
+      <div class="mob-panel" id="mob-canvas">
+        <div class="sub-label">Canvas Size</div>
+        <div class="row" style="margin-bottom:7px">
+          <div><label>W px</label><input type="number" id="canvasWMob" value="600" min="1"></div>
+          <div><label>H px</label><input type="number" id="canvasHMob" value="400" min="1"></div>
+        </div>
+        <button class="btn btn-sm" onclick="applyCanvasSize(true)">Apply Size</button>
+        <div class="sub-label">Presets</div>
+        <div class="btn-row">
+          <button class="btn btn-sm" onclick="setCanvasPreset(800,600,true)">800×600</button>
+          <button class="btn btn-sm" onclick="setCanvasPreset(1024,768,true)">1024×768</button>
+        </div>
+        <div class="btn-row">
+          <button class="btn btn-sm" onclick="setCanvasPreset(1920,1080,true)">1920×1080</button>
+          <button class="btn btn-sm" onclick="setCanvasPreset(1080,1080,true)">1080² Sq</button>
+        </div>
+        <div class="sub-label">Snap to Grid</div>
+        <div class="grid-row">
+          <label><input type="checkbox" id="snapOnMob" onchange="syncSnapGrid()"> Snap</label>
+          <label><input type="checkbox" id="gridVisibleMob" onchange="syncGridVis()"> Show Grid</label>
+        </div>
+        <label>Grid Size (px)</label>
+        <input type="number" id="gridSizeMob" value="20" min="5" max="200" onchange="syncGridSize();renderGrid()">
+      </div>
       <div class="mob-panel" id="mob-export">
-        <button class="btn btn-primary" onclick="exportPNG()">Export as PNG</button>
-        <button class="btn"             onclick="resetAll()">Reset All</button>
-        <button class="btn btn-sm"      onclick="resetView()">Reset View</button>
-        <p class="hint" style="margin-top:10px">Pinch to zoom · Single-finger drag to pan · Tap canvas to place icon</p>
+        <button class="btn btn-primary" onclick="exportPNG()">Export PNG</button>
+        <button class="btn" onclick="saveSession()">Save Session</button>
+        <button class="btn" onclick="document.getElementById('loadSessionFileMob').click()">Load Session<input type="file" id="loadSessionFileMob" accept=".json" style="display:none" onchange="loadSession(this)"></button>
+        <button class="btn" onclick="resetAll()">Reset All</button>
+        <button class="btn btn-sm" onclick="resetView()">Reset View</button>
+        <p class="hint" style="margin-top:8px">Pinch zoom · Drag to pan · Tap canvas to place icon</p>
       </div>
     </div>
 
-    <!-- DESKTOP UI: collapsible sections -->
+    <!-- ══ DESKTOP SECTIONS ══ -->
+
+    <!-- BASE STAMP -->
     <div class="section">
       <div class="section-title" onclick="toggleSection(this)">Base Stamp <span class="chev">▾</span></div>
       <div class="section-body">
-        <div class="drop-zone" id="baseDrop" onclick="document.getElementById('baseFile').click()">
-          Drop image here or click to browse
-          <input type="file" id="baseFile" accept="image/*">
-        </div>
-        <label>Or image URL</label>
+        <div class="drop-zone" id="baseDrop" onclick="document.getElementById('baseFile').click()">Drop or click to browse<input type="file" id="baseFile" accept="image/*"></div>
+        <label>Or URL</label>
         <input type="url" id="baseUrl" placeholder="https://...">
-        <div class="err" id="baseErr">Could not load — try downloading and loading as file.</div>
+        <div class="err" id="baseErr">Could not load.</div>
         <button class="btn" onclick="loadBaseFromUrl()">Load from URL</button>
+        <div class="sub-label">Rotation</div>
+        <div class="slider-row">
+          <span class="axis-lbl" title="Double-click to reset" ondblclick="resetSlider('baseRot','baseRotN',0);syncBaseRot()">°</span>
+          <input type="range" id="baseRot" min="-180" max="180" value="0" oninput="sv('baseRot','baseRotN');syncBaseRot();render()" ondblclick="resetSlider('baseRot','baseRotN',0);syncBaseRot()">
+          <input type="number" class="num-val" id="baseRotN" value="0" min="-180" max="180" onchange="ns('baseRotN','baseRot');syncBaseRot();render()">
+        </div>
       </div>
     </div>
 
+    <!-- ICONS -->
     <div class="section">
       <div class="section-title" onclick="toggleSection(this)">Icons / Overlays <span class="chev">▾</span></div>
       <div class="section-body">
-        <div class="icon-layers" id="iconLayers"></div>
-        <button class="btn" onclick="addIconLayer()" style="margin-top:8px">+ Add Icon Layer</button>
+        <div class="layers-list" id="iconLayers"></div>
+        <button class="btn" onclick="addIconLayer()" style="margin-top:7px">+ Add Icon Layer</button>
       </div>
     </div>
 
+    <!-- CUSTOM FONTS -->
     <div class="section">
       <div class="section-title" onclick="toggleSection(this)">Custom Fonts <span class="chev">▾</span></div>
       <div class="section-body">
-        <p class="hint">Load .ttf / .otf / .woff files. Fonts appear in all text layer dropdowns.</p>
-        <div class="drop-zone" id="fontDrop" onclick="document.getElementById('fontFile').click()">
-          Drop font file or click to browse
-          <input type="file" id="fontFile" accept=".ttf,.otf,.woff,.woff2" multiple>
-        </div>
+        <p class="hint">Load .ttf/.otf/.woff files — appear in all font dropdowns.</p>
+        <div class="drop-zone" id="fontDrop" onclick="document.getElementById('fontFile').click()">Drop font or click to browse<input type="file" id="fontFile" accept=".ttf,.otf,.woff,.woff2" multiple></div>
         <div class="font-chips" id="fontChips"></div>
       </div>
     </div>
 
+    <!-- TEXT LAYERS -->
     <div class="section">
       <div class="section-title" onclick="toggleSection(this)">Text Layers <span class="chev">▾</span></div>
       <div class="section-body">
-        <div class="text-layers" id="textLayers"></div>
-        <button class="btn" onclick="addTextLayer()" style="margin-top:8px">+ Add Text Layer</button>
+        <div class="layers-list" id="textLayers"></div>
+        <button class="btn" onclick="addTextLayer()" style="margin-top:7px">+ Add Text Layer</button>
       </div>
     </div>
 
+    <!-- CANVAS SIZE -->
+    <div class="section">
+      <div class="section-title" onclick="toggleSection(this)">Canvas Size <span class="chev">▾</span></div>
+      <div class="section-body">
+        <div class="row" style="margin-bottom:7px">
+          <div><label>W px</label><input type="number" id="canvasW" value="600" min="1"></div>
+          <div><label>H px</label><input type="number" id="canvasH" value="400" min="1"></div>
+        </div>
+        <button class="btn btn-sm" onclick="applyCanvasSize(false)">Apply Size</button>
+        <div class="sub-label">Presets</div>
+        <div class="btn-row">
+          <button class="btn btn-sm" onclick="setCanvasPreset(800,600)">800×600</button>
+          <button class="btn btn-sm" onclick="setCanvasPreset(1024,768)">1024×768</button>
+        </div>
+        <div class="btn-row">
+          <button class="btn btn-sm" onclick="setCanvasPreset(1920,1080)">1920×1080</button>
+          <button class="btn btn-sm" onclick="setCanvasPreset(1080,1080)">1080² Sq</button>
+        </div>
+        <div class="btn-row">
+          <button class="btn btn-sm" onclick="setCanvasPreset(2480,3508)">A4 Print</button>
+          <button class="btn btn-sm" onclick="setCanvasPreset(1200,630)">OG Image</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- GRID -->
+    <div class="section">
+      <div class="section-title" onclick="toggleSection(this)">Grid & Snap <span class="chev">▾</span></div>
+      <div class="section-body">
+        <div class="grid-row">
+          <label><input type="checkbox" id="snapOn" onchange="syncSnapGrid()"> Snap to Grid</label>
+          <label><input type="checkbox" id="gridVisible" onchange="syncGridVis()"> Show Grid</label>
+        </div>
+        <label>Grid Size (px)</label>
+        <input type="number" id="gridSize" value="20" min="5" max="200" onchange="syncGridSize();renderGrid()">
+        <p class="hint">Snapping applies to icon and text X/Y positions.</p>
+      </div>
+    </div>
+
+    <!-- EXPORT -->
     <div class="section">
       <div class="section-title" onclick="toggleSection(this)">Export <span class="chev">▾</span></div>
       <div class="section-body">
         <button class="btn btn-primary" onclick="exportPNG()">Export as PNG</button>
-        <button class="btn"             onclick="resetAll()">Reset All</button>
-        <button class="btn btn-sm"      onclick="resetView()">Reset View</button>
+        <button class="btn" onclick="saveSession()">Save Session (.json)</button>
+        <button class="btn" onclick="document.getElementById('loadSessionFile').click()">Load Session<input type="file" id="loadSessionFile" accept=".json" style="display:none" onchange="loadSession(this)"></button>
+        <button class="btn" onclick="resetAll()">Reset All</button>
+        <button class="btn btn-sm" onclick="resetView()">Reset View</button>
       </div>
     </div>
 
   </div><!-- /sidebar -->
 
-  <!-- ══ CANVAS PANE ══ -->
+  <!-- CANVAS PANE -->
   <div class="canvas-area" id="canvasArea">
     <div id="viewport">
       <canvas id="c" width="600" height="400"></canvas>
+      <canvas id="gridCanvas" width="600" height="400"></canvas>
     </div>
-    <div class="canvas-hint" id="canvasHint">SCROLL TO ZOOM · MIDDLE-DRAG OR SPACE+DRAG TO PAN · CLICK TO PLACE ICON</div>
+    <div class="canvas-hint" id="canvasHint">SCROLL ZOOM · MID-DRAG/SPACE PAN · CLICK TO PLACE ICON</div>
     <div class="zoom-badge" id="zoomBadge">100%</div>
   </div>
 
-</div><!-- /workspace -->
+</div>
 
 <script>
 'use strict';
 
-// ─────────────────────────────────────────────────────────────
-// GLOBALS
-// ─────────────────────────────────────────────────────────────
-const canvas     = document.getElementById('c');
-const ctx        = canvas.getContext('2d');
-const canvasArea = document.getElementById('canvasArea');
-const viewport   = document.getElementById('viewport');
-const zoomBadge  = document.getElementById('zoomBadge');
-const sidebar    = document.getElementById('sidebar');
+// ─── GLOBALS ────────────────────────────────────────────────
+const canvas      = document.getElementById('c');
+const ctx         = canvas.getContext('2d');
+const gridCanvas  = document.getElementById('gridCanvas');
+const gctx        = gridCanvas.getContext('2d');
+const canvasArea  = document.getElementById('canvasArea');
+const viewport    = document.getElementById('viewport');
+const zoomBadge   = document.getElementById('zoomBadge');
+const sidebar     = document.getElementById('sidebar');
 
-let baseImg      = null;
-let iconLayers   = [];   // { id, img, x, y, scale }
-let iconCount    = 0;
-let activeIconId = null;
-let textLayers   = [];
-let layerCount   = 0;
+let baseImg       = null;
+let baseRotation  = 0;
+let iconLayers    = [];   // { id, img, x, y, scale, rotation, opacity }
+let iconCount     = 0;
+let activeIconId  = null;
+let textLayers    = [];   // { id, text, x, y, size, font, color, bold, italic, align, lineHeight, rotation, opacity, strokeColor, strokeWidth, shadowColor, shadowBlur, shadowOffsetX, shadowOffsetY }
+let layerCount    = 0;
+let snapEnabled   = false;
+let gridVisible   = false;
+let gridSize      = 20;
 
-// Is this a mobile/touch device?
 const isMobile = () => window.matchMedia('(max-width: 768px)').matches;
 
-// ─────────────────────────────────────────────────────────────
-// MOBILE DRAWER
-// ─────────────────────────────────────────────────────────────
-function toggleDrawer() {
-  sidebar.classList.toggle('open');
-}
-
-function mobTab(el) {
-  // Open drawer if closed
-  if (!sidebar.classList.contains('open')) sidebar.classList.add('open');
-  // Activate tab
-  document.querySelectorAll('.mob-tab').forEach(t => t.classList.remove('active'));
-  el.classList.add('active');
-  // Show panel
-  const panel = el.dataset.panel;
-  document.querySelectorAll('.mob-panel').forEach(p => p.classList.remove('active'));
-  document.getElementById('mob-' + panel).classList.add('active');
-}
-
-// Update canvas hint for mobile
-function updateHint() {
-  const hint = document.getElementById('canvasHint');
-  if (isMobile()) {
-    hint.textContent = 'PINCH ZOOM · DRAG TO PAN · TAP TO PLACE ICON';
-  } else {
-    hint.textContent = 'SCROLL TO ZOOM · MIDDLE-DRAG OR SPACE+DRAG TO PAN · CLICK TO PLACE ICON';
-  }
-}
-
-// ─────────────────────────────────────────────────────────────
-// VIEWPORT — pan + zoom (desktop mouse)
-// ─────────────────────────────────────────────────────────────
-let vpX = 0, vpY = 0, vpZ = 1.0;
+// ─── VIEWPORT ───────────────────────────────────────────────
+let vpX = 0, vpY = 0, vpZ = 1;
 const MIN_Z = 0.05, MAX_Z = 10;
 let isPanning = false, spaceDown = false;
 let panStartX = 0, panStartY = 0, panOriginX = 0, panOriginY = 0;
 
 function applyViewport() {
-  viewport.style.transform = `translate(${vpX}px, ${vpY}px) scale(${vpZ})`;
+  viewport.style.transform = `translate(${vpX}px,${vpY}px) scale(${vpZ})`;
   zoomBadge.textContent = Math.round(vpZ * 100) + '%';
 }
-
 function centreCanvas() {
   const ar = canvasArea.getBoundingClientRect();
   const fit = Math.min(1, (ar.width - 60) / canvas.width, (ar.height - 60) / canvas.height);
@@ -479,602 +391,660 @@ function centreCanvas() {
   vpY = (ar.height - canvas.height * vpZ) / 2;
   applyViewport();
 }
-
 function resetView() { centreCanvas(); }
 
-// Scroll zoom
 canvasArea.addEventListener('wheel', e => {
   e.preventDefault();
-  const rect = canvasArea.getBoundingClientRect();
-  const mx = e.clientX - rect.left, my = e.clientY - rect.top;
-  const delta = e.deltaY < 0 ? 1.1 : 1 / 1.1;
-  const nz = Math.min(MAX_Z, Math.max(MIN_Z, vpZ * delta));
-  vpX = mx - (mx - vpX) * (nz / vpZ);
-  vpY = my - (my - vpY) * (nz / vpZ);
-  vpZ = nz;
+  const r = canvasArea.getBoundingClientRect();
+  const mx = e.clientX - r.left, my = e.clientY - r.top;
+  const d = e.deltaY < 0 ? 1.1 : 1/1.1;
+  const nz = Math.min(MAX_Z, Math.max(MIN_Z, vpZ * d));
+  vpX = mx - (mx - vpX) * (nz / vpZ); vpY = my - (my - vpY) * (nz / vpZ); vpZ = nz;
   applyViewport();
 }, { passive: false });
 
-// Middle-mouse / Space+drag pan
 canvasArea.addEventListener('mousedown', e => {
-  if (e.button === 1 || (e.button === 0 && spaceDown)) {
-    e.preventDefault();
-    isPanning = true;
-    panStartX = e.clientX; panStartY = e.clientY;
-    panOriginX = vpX; panOriginY = vpY;
+  // Only pan on middle-click, or space+left-click directly on the canvas/viewport background
+  // Never steal drag from sliders, inputs, buttons, or other controls
+  const onInteractive = e.target.closest('input, button, select, textarea, label, .btn, .layer-card, .section-body');
+  if (e.button === 1 || (e.button === 0 && spaceDown && !onInteractive)) {
+    e.preventDefault(); isPanning = true;
+    panStartX = e.clientX; panStartY = e.clientY; panOriginX = vpX; panOriginY = vpY;
     canvasArea.style.cursor = 'grabbing';
   }
 });
-window.addEventListener('mousemove', e => {
-  if (!isPanning) return;
-  vpX = panOriginX + (e.clientX - panStartX);
-  vpY = panOriginY + (e.clientY - panStartY);
-  applyViewport();
-});
-window.addEventListener('mouseup', () => {
-  if (isPanning) { isPanning = false; canvasArea.style.cursor = spaceDown ? 'grab' : 'default'; }
-});
-window.addEventListener('keydown', e => {
-  if (e.code === 'Space' && !e.target.matches('input,textarea,select')) {
-    spaceDown = true; canvasArea.style.cursor = 'grab'; e.preventDefault();
-  }
-});
-window.addEventListener('keyup', e => {
-  if (e.code === 'Space') { spaceDown = false; canvasArea.style.cursor = 'default'; }
-});
+window.addEventListener('mousemove', e => { if (!isPanning) return; vpX = panOriginX + (e.clientX - panStartX); vpY = panOriginY + (e.clientY - panStartY); applyViewport(); });
+window.addEventListener('mouseup', () => { if (isPanning) { isPanning = false; canvasArea.style.cursor = spaceDown ? 'grab' : 'default'; } });
+window.addEventListener('keydown', e => { if (e.code === 'Space' && !e.target.matches('input,textarea,select')) { spaceDown = true; canvasArea.style.cursor = 'grab'; e.preventDefault(); } });
+window.addEventListener('keyup', e => { if (e.code === 'Space') { spaceDown = false; canvasArea.style.cursor = 'default'; } });
 canvasArea.addEventListener('auxclick', e => { if (e.button === 1) e.preventDefault(); });
 
-// Click canvas → snap active icon (desktop)
 canvas.addEventListener('click', e => {
   if (!activeIconId || isPanning || spaceDown) return;
   const vr = viewport.getBoundingClientRect();
-  const x = Math.round((e.clientX - vr.left) / vpZ);
-  const y = Math.round((e.clientY - vr.top)  / vpZ);
+  let x = Math.round((e.clientX - vr.left) / vpZ);
+  let y = Math.round((e.clientY - vr.top)  / vpZ);
+  if (snapEnabled) { x = Math.round(x / gridSize) * gridSize; y = Math.round(y / gridSize) * gridSize; }
   snapIconTo(activeIconId, x, y);
 });
 
-// ─────────────────────────────────────────────────────────────
-// TOUCH — pinch zoom + single-finger pan (mobile)
-// ─────────────────────────────────────────────────────────────
-let touch1 = null, touch2 = null;
-let touchPanOriginX = 0, touchPanOriginY = 0;
-let touchPanStartX  = 0, touchPanStartY  = 0;
-let pinchStartDist  = 0, pinchStartZ     = 0;
-let pinchMidX = 0, pinchMidY = 0;
-let touchStartVpX = 0, touchStartVpY = 0;
-let didPan = false;
+// ─── TOUCH ──────────────────────────────────────────────────
+let touch1=null,touch2=null,pinchStartDist=0,pinchStartZ=0,pinchMidX=0,pinchMidY=0;
+let touchPanSX=0,touchPanSY=0,touchPanOX=0,touchPanOY=0,touchStartVpX=0,touchStartVpY=0,didPan=false;
 
 canvasArea.addEventListener('touchstart', e => {
-  e.preventDefault();
-  didPan = false;
+  e.preventDefault(); didPan = false;
   if (e.touches.length === 1) {
-    touch1 = e.touches[0];
-    touchPanStartX = touch1.clientX; touchPanStartY = touch1.clientY;
-    touchPanOriginX = vpX; touchPanOriginY = vpY;
+    touch1 = e.touches[0]; touchPanSX = touch1.clientX; touchPanSY = touch1.clientY; touchPanOX = vpX; touchPanOY = vpY;
   } else if (e.touches.length === 2) {
     touch1 = e.touches[0]; touch2 = e.touches[1];
-    pinchStartDist = Math.hypot(touch2.clientX - touch1.clientX, touch2.clientY - touch1.clientY);
-    pinchStartZ = vpZ;
-    const rect = canvasArea.getBoundingClientRect();
-    pinchMidX = (touch1.clientX + touch2.clientX) / 2 - rect.left;
-    pinchMidY = (touch1.clientY + touch2.clientY) / 2 - rect.top;
-    touchStartVpX = vpX; touchStartVpY = vpY;
-    didPan = true; // suppress tap-to-place on pinch
+    pinchStartDist = Math.hypot(touch2.clientX-touch1.clientX, touch2.clientY-touch1.clientY); pinchStartZ = vpZ;
+    const r = canvasArea.getBoundingClientRect();
+    pinchMidX = (touch1.clientX+touch2.clientX)/2-r.left; pinchMidY = (touch1.clientY+touch2.clientY)/2-r.top;
+    touchStartVpX = vpX; touchStartVpY = vpY; didPan = true;
   }
 }, { passive: false });
 
 canvasArea.addEventListener('touchmove', e => {
   e.preventDefault();
   if (e.touches.length === 1) {
-    const t = e.touches[0];
-    const dx = t.clientX - touchPanStartX;
-    const dy = t.clientY - touchPanStartY;
-    if (Math.abs(dx) > 3 || Math.abs(dy) > 3) didPan = true;
-    vpX = touchPanOriginX + dx;
-    vpY = touchPanOriginY + dy;
-    applyViewport();
+    const t = e.touches[0]; const dx = t.clientX-touchPanSX, dy = t.clientY-touchPanSY;
+    if (Math.abs(dx)>3||Math.abs(dy)>3) didPan = true;
+    vpX = touchPanOX+dx; vpY = touchPanOY+dy; applyViewport();
   } else if (e.touches.length === 2) {
-    const t1 = e.touches[0], t2 = e.touches[1];
-    const dist = Math.hypot(t2.clientX - t1.clientX, t2.clientY - t1.clientY);
-    const nz = Math.min(MAX_Z, Math.max(MIN_Z, pinchStartZ * (dist / pinchStartDist)));
-    // Keep pinch midpoint stationary
-    vpX = pinchMidX - (pinchMidX - touchStartVpX) * (nz / pinchStartZ);
-    vpY = pinchMidY - (pinchMidY - touchStartVpY) * (nz / pinchStartZ);
-    vpZ = nz;
-    applyViewport();
+    const t1=e.touches[0],t2=e.touches[1];
+    const dist = Math.hypot(t2.clientX-t1.clientX,t2.clientY-t1.clientY);
+    const nz = Math.min(MAX_Z,Math.max(MIN_Z,pinchStartZ*(dist/pinchStartDist)));
+    vpX = pinchMidX-(pinchMidX-touchStartVpX)*(nz/pinchStartZ);
+    vpY = pinchMidY-(pinchMidY-touchStartVpY)*(nz/pinchStartZ); vpZ = nz; applyViewport();
   }
 }, { passive: false });
 
 canvasArea.addEventListener('touchend', e => {
   e.preventDefault();
-  if (e.changedTouches.length === 1 && !didPan && activeIconId) {
-    // Tap to place icon
-    const t = e.changedTouches[0];
-    const vr = viewport.getBoundingClientRect();
-    const x = Math.round((t.clientX - vr.left) / vpZ);
-    const y = Math.round((t.clientY - vr.top)  / vpZ);
-    snapIconTo(activeIconId, x, y);
+  if (e.changedTouches.length===1 && !didPan && activeIconId) {
+    const t=e.changedTouches[0], vr=viewport.getBoundingClientRect();
+    let x=Math.round((t.clientX-vr.left)/vpZ), y=Math.round((t.clientY-vr.top)/vpZ);
+    if (snapEnabled) { x=Math.round(x/gridSize)*gridSize; y=Math.round(y/gridSize)*gridSize; }
+    snapIconTo(activeIconId,x,y);
   }
-  touch1 = null; touch2 = null;
+  touch1=null; touch2=null;
 }, { passive: false });
 
 function snapIconTo(id, x, y) {
-  const il = iconLayers.find(l => l.id === id);
-  if (!il) return;
-  il.x = x; il.y = y;
-  // Update slider + number inputs (desktop and mobile)
-  ['', 'Mob'].forEach(sfx => {
-    const xs = document.getElementById(`ix_${id}${sfx}`);
-    const xn = document.getElementById(`ixn_${id}${sfx}`);
-    const ys = document.getElementById(`iy_${id}${sfx}`);
-    const yn = document.getElementById(`iyn_${id}${sfx}`);
-    if (xs) xs.value = x;  if (xn) xn.value = x;
-    if (ys) ys.value = y;  if (yn) yn.value = y;
+  const l = iconLayers.find(l=>l.id===id); if (!l) return;
+  l.x=x; l.y=y;
+  ['','Mob'].forEach(sfx => {
+    const xs=document.getElementById(`ix_${id}${sfx}`), xn=document.getElementById(`ixn_${id}${sfx}`);
+    const ys=document.getElementById(`iy_${id}${sfx}`), yn=document.getElementById(`iyn_${id}${sfx}`);
+    if(xs)xs.value=x; if(xn)xn.value=x; if(ys)ys.value=y; if(yn)yn.value=y;
   });
   render();
 }
 
-// ─────────────────────────────────────────────────────────────
-// SYSTEM + CUSTOM FONTS
-// ─────────────────────────────────────────────────────────────
-let systemFonts = [], loadedFonts = [];
+// ─── MOBILE DRAWER ──────────────────────────────────────────
+function toggleDrawer() { sidebar.classList.toggle('open'); }
+function mobTab(el) {
+  if (!sidebar.classList.contains('open')) sidebar.classList.add('open');
+  document.querySelectorAll('.mob-tab').forEach(t=>t.classList.remove('active')); el.classList.add('active');
+  document.querySelectorAll('.mob-panel').forEach(p=>p.classList.remove('active'));
+  document.getElementById('mob-'+el.dataset.panel).classList.add('active');
+}
+function updateHint() {
+  document.getElementById('canvasHint').textContent = isMobile()
+    ? 'PINCH ZOOM · DRAG PAN · TAP TO PLACE ICON'
+    : 'SCROLL ZOOM · MID-DRAG/SPACE PAN · CLICK TO PLACE ICON';
+}
 
-const FALLBACK_FONTS = ['Arial','Arial Black','Bahnschrift','Calibri','Cambria','Candara',
-  'Comic Sans MS','Consolas','Constantia','Courier New','Franklin Gothic Medium','Gabriola',
-  'Georgia','Impact','Lucida Console','Lucida Sans Unicode','MS Gothic','Palatino Linotype',
-  'Segoe Print','Segoe Script','Segoe UI','SimSun','Tahoma','Times New Roman','Trebuchet MS','Verdana'
-].map(f => ({ label: f, value: f }));
+// ─── CANVAS SIZE ────────────────────────────────────────────
+function applyCanvasSize(mob) {
+  const w = +document.getElementById(mob?'canvasWMob':'canvasW').value;
+  const h = +document.getElementById(mob?'canvasHMob':'canvasH').value;
+  if (!w||!h||w<1||h<1) return;
+  canvas.width=w; canvas.height=h; gridCanvas.width=w; gridCanvas.height=h;
+  // Sync both inputs
+  document.getElementById('canvasW').value=w; document.getElementById('canvasH').value=h;
+  document.getElementById('canvasWMob').value=w; document.getElementById('canvasHMob').value=h;
+  textLayers.forEach(l=>recalcLayerRange(l));
+  renderGrid(); centreCanvas(); render();
+}
+function setCanvasPreset(w, h, mob) {
+  document.getElementById('canvasW').value=w; document.getElementById('canvasH').value=h;
+  document.getElementById('canvasWMob').value=w; document.getElementById('canvasHMob').value=h;
+  applyCanvasSize(mob);
+}
+
+// ─── GRID ───────────────────────────────────────────────────
+function syncSnapGrid() {
+  snapEnabled = document.getElementById('snapOn').checked;
+  document.getElementById('snapOnMob').checked = snapEnabled;
+}
+function syncGridVis() {
+  gridVisible = document.getElementById('gridVisible').checked;
+  document.getElementById('gridVisibleMob').checked = gridVisible;
+  renderGrid();
+}
+function syncGridSize() {
+  gridSize = +document.getElementById('gridSize').value || 20;
+  document.getElementById('gridSizeMob').value = gridSize;
+}
+
+function renderGrid() {
+  gctx.clearRect(0,0,gridCanvas.width,gridCanvas.height);
+  if (!gridVisible) return;
+  gctx.strokeStyle = 'rgba(232,200,74,0.18)';
+  gctx.lineWidth = 0.5;
+  const w=gridCanvas.width, h=gridCanvas.height;
+  for (let x=0; x<=w; x+=gridSize) { gctx.beginPath(); gctx.moveTo(x,0); gctx.lineTo(x,h); gctx.stroke(); }
+  for (let y=0; y<=h; y+=gridSize) { gctx.beginPath(); gctx.moveTo(0,y); gctx.lineTo(w,y); gctx.stroke(); }
+}
+
+// ─── FONTS ──────────────────────────────────────────────────
+let systemFonts=[], loadedFonts=[];
+const FALLBACK_FONTS = ['Arial','Arial Black','Bahnschrift','Calibri','Cambria','Candara','Comic Sans MS','Consolas','Constantia','Courier New','Franklin Gothic Medium','Gabriola','Georgia','Impact','Lucida Console','Lucida Sans Unicode','MS Gothic','Palatino Linotype','Segoe Print','Segoe Script','Segoe UI','SimSun','Tahoma','Times New Roman','Trebuchet MS','Verdana'].map(f=>({label:f,value:f}));
 
 async function loadSystemFonts() {
-  if (!('queryLocalFonts' in window)) { systemFonts = FALLBACK_FONTS; return; }
+  if (!('queryLocalFonts' in window)) { systemFonts=FALLBACK_FONTS; return; }
   try {
-    const raw = await window.queryLocalFonts();
-    const seen = new Set(), out = [];
-    for (const f of raw) {
-      for (const v of [f.family, f.fullName, f.postscriptName]) {
-        if (v && !seen.has(v)) { seen.add(v); out.push({ label: v, value: v }); }
-      }
-    }
-    out.sort((a, b) => a.label.localeCompare(b.label));
-    systemFonts = out;
-  } catch { systemFonts = FALLBACK_FONTS; }
+    const raw=await window.queryLocalFonts(); const seen=new Set(), out=[];
+    for (const f of raw) for (const v of [f.family,f.fullName,f.postscriptName]) if(v&&!seen.has(v)){seen.add(v);out.push({label:v,value:v});}
+    out.sort((a,b)=>a.label.localeCompare(b.label)); systemFonts=out;
+  } catch { systemFonts=FALLBACK_FONTS; }
 }
 const fontsReady = loadSystemFonts();
+function allFonts() { return [...loadedFonts.map(f=>({label:'★ '+f.name,value:f.family})),...systemFonts]; }
 
-// Font file loading — desktop inputs
-document.getElementById('fontFile').addEventListener('change', e => {
-  [...e.target.files].forEach(loadFontFile); e.target.value = '';
-});
-setupDrop('fontDrop', file => { if (/\.(ttf|otf|woff2?)$/i.test(file.name)) loadFontFile(file); });
-
-// Font file loading — mobile input
-document.getElementById('fontFileMob').addEventListener('change', e => {
-  [...e.target.files].forEach(loadFontFile); e.target.value = '';
-});
+document.getElementById('fontFile').addEventListener('change',e=>{[...e.target.files].forEach(loadFontFile);e.target.value='';});
+document.getElementById('fontFileMob').addEventListener('change',e=>{[...e.target.files].forEach(loadFontFile);e.target.value='';});
+setupDrop('fontDrop',file=>{if(/\.(ttf|otf|woff2?)$/i.test(file.name))loadFontFile(file);});
 
 async function loadFontFile(file) {
-  const reader = new FileReader();
-  reader.onload = async ev => {
-    const name = file.name.replace(/\.[^.]+$/, '').replace(/[^a-zA-Z0-9 _-]/g, '');
-    try {
-      const ff = new FontFace(name, ev.target.result);
-      await ff.load();
-      document.fonts.add(ff);
-      loadedFonts.push({ name, family: name });
-      renderFontChips();
-      renderLayerUI(); renderIconLayerUI();
-    } catch(err) { alert(`Could not load font "${file.name}": ${err.message}`); }
+  const fr=new FileReader();
+  fr.onload=async ev=>{
+    const name=file.name.replace(/\.[^.]+$/,'').replace(/[^a-zA-Z0-9 _-]/g,'');
+    try { const ff=new FontFace(name,ev.target.result); await ff.load(); document.fonts.add(ff); loadedFonts.push({name,family:name}); renderFontChips(); renderLayerUI(); renderIconLayerUI(); }
+    catch(err){alert(`Could not load font "${file.name}": ${err.message}`);}
   };
-  reader.readAsArrayBuffer(file);
+  fr.readAsArrayBuffer(file);
 }
-
 function removeFontByName(name) {
-  for (const f of document.fonts) { if (f.family === name) { document.fonts.delete(f); break; } }
-  loadedFonts = loadedFonts.filter(f => f.name !== name);
-  renderFontChips(); renderLayerUI();
+  for(const f of document.fonts)if(f.family===name){document.fonts.delete(f);break;}
+  loadedFonts=loadedFonts.filter(f=>f.name!==name); renderFontChips(); renderLayerUI();
 }
-
 function renderFontChips() {
-  ['fontChips','fontChipsMob'].forEach(id => {
-    const el = document.getElementById(id); if (!el) return;
-    el.innerHTML = '';
-    loadedFonts.forEach(f => {
-      const chip = document.createElement('div');
-      chip.className = 'font-chip';
-      chip.innerHTML = `<span style="font-family:'${f.family}'">${f.name}</span>
-        <button class="chip-remove" onclick="removeFontByName('${f.name.replace(/'/g,"\\'")}')">✕</button>`;
-      el.appendChild(chip);
-    });
+  ['fontChips','fontChipsMob'].forEach(id=>{
+    const el=document.getElementById(id); if(!el)return; el.innerHTML='';
+    loadedFonts.forEach(f=>{const c=document.createElement('div');c.className='font-chip';c.innerHTML=`<span style="font-family:'${f.family}'">${f.name}</span><button class="chip-remove" onclick="removeFontByName('${f.name.replace(/'/g,"\\'")}')">✕</button>`;el.appendChild(c);});
   });
 }
 
-function allFonts() {
-  return [...loadedFonts.map(f => ({ label: '★ ' + f.name, value: f.family })), ...systemFonts];
+// ─── HELPERS ────────────────────────────────────────────────
+function loadImageSrc(src) {
+  return new Promise((res,rej)=>{const img=new Image();img.crossOrigin='anonymous';img.onload=()=>res(img);img.onerror=()=>rej(new Error('load failed'));img.src=src;});
+}
+function fileToDataUrl(file) { return new Promise(res=>{const fr=new FileReader();fr.onload=e=>res(e.target.result);fr.readAsDataURL(file);}); }
+function sv(sId,nId){const n=document.getElementById(nId);if(n)n.value=document.getElementById(sId).value;}
+function ns(nId,sId){const s=document.getElementById(sId);if(s)s.value=document.getElementById(nId).value;}
+function setRange(id,min,max,val){const el=document.getElementById(id);if(!el)return;el.min=min;el.max=max;el.value=Math.min(max,Math.max(min,val!==undefined?val:+el.value));}
+function escHtml(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+function showErr(id,show){const el=document.getElementById(id);if(el)el.style.display=show?'block':'none';}
+
+function resetSlider(sId,nId,def,fn){
+  const s=document.getElementById(sId),n=document.getElementById(nId);
+  if(s)s.value=def; if(n)n.value=def; if(fn)fn(def); render();
+}
+function snap(v){return snapEnabled?Math.round(v/gridSize)*gridSize:v;}
+
+// ─── BASE IMAGE ─────────────────────────────────────────────
+document.getElementById('baseFile').addEventListener('change',async e=>{if(e.target.files[0]){baseImg=await loadImageSrc(await fileToDataUrl(e.target.files[0]));onBaseLoaded();}});
+document.getElementById('baseFileMob').addEventListener('change',async e=>{if(e.target.files[0]){baseImg=await loadImageSrc(await fileToDataUrl(e.target.files[0]));onBaseLoaded();}});
+async function loadBaseFromUrl(){const url=document.getElementById('baseUrl').value.trim();if(!url)return;showErr('baseErr',false);try{baseImg=await loadImageSrc(url);onBaseLoaded();}catch{showErr('baseErr',true);}}
+async function loadBaseFromUrlMob(){const url=document.getElementById('baseUrlMob').value.trim();if(!url)return;showErr('baseErrMob',false);try{baseImg=await loadImageSrc(url);onBaseLoaded();}catch{showErr('baseErrMob',true);}}
+setupDrop('baseDrop',async file=>{baseImg=await loadImageSrc(await fileToDataUrl(file));onBaseLoaded();});
+
+function onBaseLoaded(){
+  canvas.width=baseImg.width; canvas.height=baseImg.height;
+  gridCanvas.width=baseImg.width; gridCanvas.height=baseImg.height;
+  document.getElementById('canvasW').value=baseImg.width; document.getElementById('canvasH').value=baseImg.height;
+  document.getElementById('canvasWMob').value=baseImg.width; document.getElementById('canvasHMob').value=baseImg.height;
+  iconLayers.forEach(l=>{setRange(`ix_${l.id}`,0,baseImg.width,l.x);setRange(`iy_${l.id}`,0,baseImg.height,l.y);});
+  textLayers.forEach(l=>recalcLayerRange(l));
+  renderGrid(); centreCanvas(); render();
 }
 
-// ─────────────────────────────────────────────────────────────
-// HELPERS
-// ─────────────────────────────────────────────────────────────
-function loadImage(src) {
-  return new Promise((res, rej) => {
-    const img = new Image(); img.crossOrigin = 'anonymous';
-    img.onload = () => res(img); img.onerror = () => rej(new Error('load failed'));
-    img.src = src;
-  });
-}
-function fileToDataUrl(file) {
-  return new Promise(res => { const fr = new FileReader(); fr.onload = e => res(e.target.result); fr.readAsDataURL(file); });
-}
-function sv(sId, nId) { const n = document.getElementById(nId); if(n) n.value = document.getElementById(sId).value; }
-function ns(nId, sId) { const s = document.getElementById(sId); if(s) s.value = document.getElementById(nId).value; }
-function setRange(id, min, max, val) {
-  const el = document.getElementById(id); if (!el) return;
-  el.min = min; el.max = max;
-  el.value = Math.min(max, Math.max(min, val !== undefined ? val : +el.value));
-}
-function escHtml(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
-function showErr(id, show) { const el = document.getElementById(id); if(el) el.style.display = show ? 'block' : 'none'; }
-
-// ─────────────────────────────────────────────────────────────
-// BASE IMAGE
-// ─────────────────────────────────────────────────────────────
-async function handleBaseFile(file) {
-  baseImg = await loadImage(await fileToDataUrl(file)); onBaseLoaded();
-}
-document.getElementById('baseFile').addEventListener('change', e => { if(e.target.files[0]) handleBaseFile(e.target.files[0]); });
-document.getElementById('baseFileMob').addEventListener('change', e => { if(e.target.files[0]) handleBaseFile(e.target.files[0]); });
-
-async function loadBaseFromUrl() {
-  const url = document.getElementById('baseUrl').value.trim(); if (!url) return;
-  showErr('baseErr', false);
-  try { baseImg = await loadImage(url); onBaseLoaded(); } catch { showErr('baseErr', true); }
-}
-async function loadBaseFromUrlMob() {
-  const url = document.getElementById('baseUrlMob').value.trim(); if (!url) return;
-  showErr('baseErrMob', false);
-  try { baseImg = await loadImage(url); onBaseLoaded(); } catch { showErr('baseErrMob', true); }
-}
-setupDrop('baseDrop', async file => { baseImg = await loadImage(await fileToDataUrl(file)); onBaseLoaded(); });
-
-function onBaseLoaded() {
-  canvas.width = baseImg.width; canvas.height = baseImg.height;
-  iconLayers.forEach(l => { setRange(`ix_${l.id}`, 0, baseImg.width, l.x); setRange(`iy_${l.id}`, 0, baseImg.height, l.y); });
-  textLayers.forEach(l => recalcLayerRange(l));
-  centreCanvas(); render();
+function syncBaseRot(){
+  baseRotation=+document.getElementById('baseRotN').value||0;
+  // Keep desktop + mobile in sync
+  const md=document.getElementById('baseRotMob'),mdn=document.getElementById('baseRotNMob');
+  if(md)md.value=baseRotation; if(mdn)mdn.value=baseRotation;
+  const d=document.getElementById('baseRot'),dn=document.getElementById('baseRotN');
+  if(d)d.value=baseRotation; if(dn)dn.value=baseRotation;
 }
 
-// ─────────────────────────────────────────────────────────────
-// ICON LAYERS
-// ─────────────────────────────────────────────────────────────
-function addIconLayer(mob) {
-  iconCount++;
-  const id = 'I' + iconCount;
-  iconLayers.push({ id, img: null, x: 10, y: 10, scale: 100 });
-  activeIconId = id;
-  renderIconLayerUI();
+// ─── ICON LAYERS ────────────────────────────────────────────
+function addIconLayer(mob){
+  iconCount++; const id='I'+iconCount;
+  iconLayers.push({id,img:null,x:10,y:10,scale:100,rotation:0,opacity:100});
+  activeIconId=id; renderIconLayerUI(); render();
+  if(mob||isMobile()){const t=document.querySelector('.mob-tab[data-panel="icons"]');if(t)mobTab(t);}
+}
+function removeIconLayer(id){
+  iconLayers=iconLayers.filter(l=>l.id!==id);
+  if(activeIconId===id)activeIconId=iconLayers.length?iconLayers[iconLayers.length-1].id:null;
+  renderIconLayerUI();render();
+}
+function updateIconLayer(id,key,val){const l=iconLayers.find(l=>l.id===id);if(l){l[key]=val;render();}}
+function setActiveIcon(id){
+  activeIconId=id;
+  document.querySelectorAll('.icon-layer').forEach(el=>{el.style.borderColor=el.dataset.id===id?'var(--accent)':'var(--border)';});
+}
+async function loadIconFile(id,file){const img=await loadImageSrc(await fileToDataUrl(file));const l=iconLayers.find(l=>l.id===id);if(l){l.img=img;render();renderIconLayerUI();}}
+async function loadIconUrl(id,sfx){
+  const input=document.getElementById(`iurl_${id}${sfx}`),errEl=document.getElementById(`ierr_${id}${sfx}`);
+  if(!input)return; const url=input.value.trim();if(!url)return;
+  errEl.style.display='none';
+  try{const img=await loadImageSrc(url);const l=iconLayers.find(l=>l.id===id);if(l){l.img=img;render();renderIconLayerUI();}}catch{errEl.style.display='block';}
+}
+
+// ─── POINTER-BASED LAYER REORDER ────────────────────────────
+// Works by listening to mousedown on the ⠿ handle only,
+// then tracking mousemove to find which card the pointer is over,
+// swapping in the array live. No HTML5 drag API involved.
+let reorderState = null; // { type:'icon'|'text', id, origIndex, floatEl }
+
+document.addEventListener('mousedown', e => {
+  const handle = e.target.closest('.layer-drag');
+  if (!handle) return;
+  const card = handle.closest('.layer-card');
+  if (!card) return;
+  e.preventDefault();
+
+  const type = card.classList.contains('icon-layer') ? 'icon' : 'text';
+  const id   = card.dataset.id || card.querySelector('[data-lid]')?.dataset.lid;
+
+  // Find the id from the card — icon layers have data-id, text layers we tag below
+  const lid = card.dataset.id;
+
+  // Create a floating ghost
+  const rect = card.getBoundingClientRect();
+  const ghost = card.cloneNode(true);
+  ghost.style.cssText = `position:fixed;top:${rect.top}px;left:${rect.left}px;width:${rect.width}px;opacity:0.75;pointer-events:none;z-index:9999;background:var(--panel);border:1px solid var(--accent);box-shadow:0 4px 20px rgba(0,0,0,0.5);`;
+  document.body.appendChild(ghost);
+
+  card.style.opacity = '0.3';
+
+  reorderState = {
+    type, id: lid,
+    ghostEl: ghost,
+    sourceCard: card,
+    offsetX: e.clientX - rect.left,
+    offsetY: e.clientY - rect.top
+  };
+});
+
+document.addEventListener('mousemove', e => {
+  if (!reorderState) return;
+  const { ghostEl, offsetX, offsetY, id, type } = reorderState;
+  ghostEl.style.top  = (e.clientY - offsetY) + 'px';
+  ghostEl.style.left = (e.clientX - offsetX) + 'px';
+
+  // Find which card the cursor is over
+  ghostEl.style.display = 'none';
+  const el = document.elementFromPoint(e.clientX, e.clientY);
+  ghostEl.style.display = '';
+  const overCard = el?.closest('.layer-card');
+  if (!overCard || overCard === reorderState.sourceCard) return;
+
+  const overId = overCard.dataset.id;
+  if (!overId || overId === id) return;
+
+  const arr   = type === 'icon' ? iconLayers : textLayers;
+  const fromI = arr.findIndex(l => l.id === id);
+  const toI   = arr.findIndex(l => l.id === overId);
+  if (fromI < 0 || toI < 0) return;
+
+  const [moved] = arr.splice(fromI, 1);
+  arr.splice(toI, 0, moved);
+
+  if (type === 'icon') renderIconLayerUI();
+  else renderLayerUI();
   render();
-  // Auto-open drawer panel on mobile
-  if (mob || isMobile()) {
-    const tab = document.querySelector('.mob-tab[data-panel="icons"]');
-    if (tab) mobTab(tab);
-  }
-}
 
-function removeIconLayer(id) {
-  iconLayers = iconLayers.filter(l => l.id !== id);
-  if (activeIconId === id) activeIconId = iconLayers.length ? iconLayers[iconLayers.length - 1].id : null;
-  renderIconLayerUI(); render();
-}
+  // Re-find the source card after re-render and dim it again
+  const newCard = document.querySelector(`.layer-card[data-id="${id}"]`);
+  if (newCard) { newCard.style.opacity = '0.3'; reorderState.sourceCard = newCard; }
+});
 
-function updateIconLayer(id, key, val) {
-  const l = iconLayers.find(l => l.id === id);
-  if (l) { l[key] = val; render(); }
-}
+document.addEventListener('mouseup', () => {
+  if (!reorderState) return;
+  reorderState.ghostEl.remove();
+  if (reorderState.sourceCard) reorderState.sourceCard.style.opacity = '';
+  reorderState = null;
+  // Full re-render to restore opacity on all cards
+  renderIconLayerUI(); renderLayerUI(); render();
+});
 
-function setActiveIcon(id) {
-  activeIconId = id;
-  document.querySelectorAll('.icon-layer').forEach(el => {
-    el.style.borderColor = el.dataset.id === id ? 'var(--accent)' : 'var(--border)';
-  });
-}
-
-async function loadIconFile(id, file) {
-  const img = await loadImage(await fileToDataUrl(file));
-  const l = iconLayers.find(l => l.id === id);
-  if (l) { l.img = img; render(); renderIconLayerUI(); }
-}
-
-async function loadIconUrl(id, suffix) {
-  const inputId = `iurl_${id}${suffix || ''}`;
-  const errId   = `ierr_${id}${suffix || ''}`;
-  const input = document.getElementById(inputId); if (!input) return;
-  const url = input.value.trim(); if (!url) return;
-  showErr(errId, false);
-  try {
-    const img = await loadImage(url);
-    const l = iconLayers.find(l => l.id === id);
-    if (l) { l.img = img; render(); renderIconLayerUI(); }
-  } catch { showErr(errId, true); }
-}
-
-function renderIconLayerUI() {
-  const w = canvas.width || 600, h = canvas.height || 400;
-
-  // Render into both desktop (#iconLayers) and mobile (#iconLayersMob)
-  [{ containerId: 'iconLayers', sfx: '' }, { containerId: 'iconLayersMob', sfx: 'Mob' }].forEach(({ containerId, sfx }) => {
-    const container = document.getElementById(containerId); if (!container) return;
-    container.innerHTML = '';
-
-    iconLayers.forEach((layer, i) => {
-      const isActive = layer.id === activeIconId;
-      const div = document.createElement('div');
-      div.className = 'text-layer icon-layer';
-      div.dataset.id = layer.id;
-      div.style.borderColor = isActive ? 'var(--accent)' : 'var(--border)';
-      div.style.cursor = 'pointer';
-      div.addEventListener('click', () => setActiveIcon(layer.id));
-
-      const hasImg = !!layer.img;
-      div.innerHTML = `
+function renderIconLayerUI(){
+  const w=canvas.width||600,h=canvas.height||400;
+  [['iconLayers',''],['iconLayersMob','Mob']].forEach(([cid,sfx])=>{
+    const ct=document.getElementById(cid);if(!ct)return; ct.innerHTML='';
+    iconLayers.forEach((layer,i)=>{
+      const isActive=layer.id===activeIconId;
+      const div=document.createElement('div');
+      div.className='layer-card icon-layer'; div.dataset.id=layer.id;
+      div.style.borderColor=isActive?'var(--accent)':'var(--border)';
+      div.draggable=false;
+      div.addEventListener('click',()=>setActiveIcon(layer.id));
+      const hasImg=!!layer.img;
+      div.innerHTML=`
         <div class="layer-header">
-          <span class="layer-title">Icon ${i + 1}${isActive ? ' ●' : ''}</span>
+          <span class="layer-drag" title="Drag to reorder">⠿</span>
+          <span class="layer-title">Icon ${i+1}${isActive?' ●':''}</span>
           <button class="layer-remove" onclick="event.stopPropagation();removeIconLayer('${layer.id}')">✕</button>
         </div>
-        ${hasImg ? `<div class="tag">IMAGE LOADED</div>` : `
-          <div class="drop-zone" id="idrop_${layer.id}${sfx}" style="margin-bottom:8px"
-            onclick="event.stopPropagation();document.getElementById('ifile_${layer.id}${sfx}').click()">
-            ${sfx ? 'Tap' : 'Drop or click'} to load image
-            <input type="file" id="ifile_${layer.id}${sfx}" accept="image/*"
-              onchange="loadIconFile('${layer.id}',this.files[0])">
+        ${hasImg?`<div class="tag">IMAGE LOADED</div>`:`
+          <div class="drop-zone" id="idrop_${layer.id}${sfx}" style="margin-bottom:7px" onclick="event.stopPropagation();document.getElementById('ifile_${layer.id}${sfx}').click()">
+            ${sfx?'Tap':'Drop or click'} to load image
+            <input type="file" id="ifile_${layer.id}${sfx}" accept="image/*" onchange="loadIconFile('${layer.id}',this.files[0])">
           </div>
           <label>Or URL</label>
           <input type="url" id="iurl_${layer.id}${sfx}" placeholder="https://..." style="margin-bottom:4px">
-          <div class="err" id="ierr_${layer.id}${sfx}">Could not load — try saving as file.</div>
-          <button class="btn btn-sm" onclick="event.stopPropagation();loadIconUrl('${layer.id}','${sfx}')" style="margin-bottom:8px">Load from URL</button>
+          <div class="err" id="ierr_${layer.id}${sfx}">Could not load — try as file.</div>
+          <button class="btn btn-sm" onclick="event.stopPropagation();loadIconUrl('${layer.id}','${sfx}')" style="margin-bottom:7px">Load from URL</button>
         `}
-        ${hasImg ? `
+        ${hasImg?`
           <div class="slider-row">
-            <span class="axis-lbl">X</span>
-            <input type="range" id="ix_${layer.id}${sfx}" min="0" max="${w}" value="${layer.x}"
-              oninput="sv('ix_${layer.id}${sfx}','ixn_${layer.id}${sfx}');updateIconLayer('${layer.id}','x',+this.value)">
-            <input type="number" class="num-val" id="ixn_${layer.id}${sfx}" value="${layer.x}"
-              onchange="ns('ixn_${layer.id}${sfx}','ix_${layer.id}${sfx}');updateIconLayer('${layer.id}','x',+this.value)">
+            <span class="axis-lbl" title="Double-click to reset" ondblclick="resetSlider('ix_${layer.id}${sfx}','ixn_${layer.id}${sfx}',0,v=>updateIconLayer('${layer.id}','x',v))">X</span>
+            <input type="range" id="ix_${layer.id}${sfx}" min="0" max="${w}" value="${layer.x}" oninput="sv('ix_${layer.id}${sfx}','ixn_${layer.id}${sfx}');updateIconLayer('${layer.id}','x',snap(+this.value))" ondblclick="resetSlider('ix_${layer.id}${sfx}','ixn_${layer.id}${sfx}',0,v=>updateIconLayer('${layer.id}','x',v))">
+            <input type="number" class="num-val" id="ixn_${layer.id}${sfx}" value="${layer.x}" onchange="ns('ixn_${layer.id}${sfx}','ix_${layer.id}${sfx}');updateIconLayer('${layer.id}','x',snap(+this.value))">
           </div>
           <div class="slider-row">
-            <span class="axis-lbl">Y</span>
-            <input type="range" id="iy_${layer.id}${sfx}" min="0" max="${h}" value="${layer.y}"
-              oninput="sv('iy_${layer.id}${sfx}','iyn_${layer.id}${sfx}');updateIconLayer('${layer.id}','y',+this.value)">
-            <input type="number" class="num-val" id="iyn_${layer.id}${sfx}" value="${layer.y}"
-              onchange="ns('iyn_${layer.id}${sfx}','iy_${layer.id}${sfx}');updateIconLayer('${layer.id}','y',+this.value)">
+            <span class="axis-lbl" title="Double-click to reset" ondblclick="resetSlider('iy_${layer.id}${sfx}','iyn_${layer.id}${sfx}',0,v=>updateIconLayer('${layer.id}','y',v))">Y</span>
+            <input type="range" id="iy_${layer.id}${sfx}" min="0" max="${h}" value="${layer.y}" oninput="sv('iy_${layer.id}${sfx}','iyn_${layer.id}${sfx}');updateIconLayer('${layer.id}','y',snap(+this.value))" ondblclick="resetSlider('iy_${layer.id}${sfx}','iyn_${layer.id}${sfx}',0,v=>updateIconLayer('${layer.id}','y',v))">
+            <input type="number" class="num-val" id="iyn_${layer.id}${sfx}" value="${layer.y}" onchange="ns('iyn_${layer.id}${sfx}','iy_${layer.id}${sfx}');updateIconLayer('${layer.id}','y',snap(+this.value))">
           </div>
           <div class="slider-row">
-            <span class="axis-lbl">%</span>
-            <input type="range" id="isc_${layer.id}${sfx}" min="5" max="300" value="${layer.scale}"
-              oninput="sv('isc_${layer.id}${sfx}','iscn_${layer.id}${sfx}');updateIconLayer('${layer.id}','scale',+this.value)">
-            <input type="number" class="num-val" id="iscn_${layer.id}${sfx}" value="${layer.scale}"
-              onchange="ns('iscn_${layer.id}${sfx}','isc_${layer.id}${sfx}');updateIconLayer('${layer.id}','scale',+this.value)">
+            <span class="axis-lbl" title="Double-click to reset to 100%" ondblclick="resetSlider('isc_${layer.id}${sfx}','iscn_${layer.id}${sfx}',100,v=>updateIconLayer('${layer.id}','scale',v))">%</span>
+            <input type="range" id="isc_${layer.id}${sfx}" min="5" max="300" value="${layer.scale}" oninput="sv('isc_${layer.id}${sfx}','iscn_${layer.id}${sfx}');updateIconLayer('${layer.id}','scale',+this.value)" ondblclick="resetSlider('isc_${layer.id}${sfx}','iscn_${layer.id}${sfx}',100,v=>updateIconLayer('${layer.id}','scale',v))">
+            <input type="number" class="num-val" id="iscn_${layer.id}${sfx}" value="${layer.scale}" onchange="ns('iscn_${layer.id}${sfx}','isc_${layer.id}${sfx}');updateIconLayer('${layer.id}','scale',+this.value)">
+          </div>
+          <div class="slider-row">
+            <span class="axis-lbl" title="Double-click to reset" ondblclick="resetSlider('iro_${layer.id}${sfx}','iron_${layer.id}${sfx}',0,v=>updateIconLayer('${layer.id}','rotation',v))">°</span>
+            <input type="range" id="iro_${layer.id}${sfx}" min="-180" max="180" value="${layer.rotation}" oninput="sv('iro_${layer.id}${sfx}','iron_${layer.id}${sfx}');updateIconLayer('${layer.id}','rotation',+this.value)" ondblclick="resetSlider('iro_${layer.id}${sfx}','iron_${layer.id}${sfx}',0,v=>updateIconLayer('${layer.id}','rotation',v))">
+            <input type="number" class="num-val" id="iron_${layer.id}${sfx}" value="${layer.rotation}" min="-180" max="180" onchange="ns('iron_${layer.id}${sfx}','iro_${layer.id}${sfx}');updateIconLayer('${layer.id}','rotation',+this.value)">
+          </div>
+          <div class="slider-row">
+            <span class="axis-lbl" title="Double-click to reset to 100%" ondblclick="resetSlider('iop_${layer.id}${sfx}','iopn_${layer.id}${sfx}',100,v=>updateIconLayer('${layer.id}','opacity',v))">α</span>
+            <input type="range" id="iop_${layer.id}${sfx}" min="0" max="100" value="${layer.opacity}" oninput="sv('iop_${layer.id}${sfx}','iopn_${layer.id}${sfx}');updateIconLayer('${layer.id}','opacity',+this.value)" ondblclick="resetSlider('iop_${layer.id}${sfx}','iopn_${layer.id}${sfx}',100,v=>updateIconLayer('${layer.id}','opacity',v))">
+            <input type="number" class="num-val" id="iopn_${layer.id}${sfx}" value="${layer.opacity}" min="0" max="100" onchange="ns('iopn_${layer.id}${sfx}','iop_${layer.id}${sfx}');updateIconLayer('${layer.id}','opacity',+this.value)">
           </div>
           <p class="hint" style="margin-bottom:0">Tap/click canvas to snap position</p>
-        ` : ''}
+        `:''}
       `;
-
-      container.appendChild(div);
-
-      // Wire drag-drop for desktop drop zones
-      const dz = div.querySelector(`#idrop_${layer.id}${sfx}`);
-      if (dz) {
-        dz.addEventListener('dragover',  e => { e.preventDefault(); e.stopPropagation(); dz.classList.add('over'); });
-        dz.addEventListener('dragleave', e => { e.stopPropagation(); dz.classList.remove('over'); });
-        dz.addEventListener('drop', async e => {
-          e.preventDefault(); e.stopPropagation(); dz.classList.remove('over');
-          const file = e.dataTransfer.files[0]; if (file) loadIconFile(layer.id, file);
-        });
+      ct.appendChild(div);
+      const dz=div.querySelector(`#idrop_${layer.id}${sfx}`);
+      if(dz){
+        dz.addEventListener('dragover',e=>{e.preventDefault();e.stopPropagation();dz.classList.add('over');});
+        dz.addEventListener('dragleave',e=>{e.stopPropagation();dz.classList.remove('over');});
+        dz.addEventListener('drop',async e=>{e.preventDefault();e.stopPropagation();dz.classList.remove('over');const f=e.dataTransfer.files[0];if(f)loadIconFile(layer.id,f);});
       }
     });
   });
 }
 
-// ─────────────────────────────────────────────────────────────
-// TEXT LAYERS
-// ─────────────────────────────────────────────────────────────
-function addTextLayer(mob) {
-  layerCount++;
-  const id = 'L' + layerCount;
-  textLayers.push({ id, text: 'Label ' + layerCount, x: 20, y: 20 + (layerCount - 1) * 60,
-    size: 28, font: 'Arial', color: '#ffffff', bold: false, italic: false, align: 'left', lineHeight: 1.3 });
-  renderLayerUI(); render();
-  if (mob || isMobile()) {
-    const tab = document.querySelector('.mob-tab[data-panel="text"]');
-    if (tab) mobTab(tab);
-  }
+// ─── TEXT LAYERS ────────────────────────────────────────────
+function addTextLayer(mob){
+  layerCount++; const id='L'+layerCount;
+  textLayers.push({id,text:'Label '+layerCount,x:20,y:20+(layerCount-1)*60,size:28,font:'Arial',color:'#ffffff',bold:false,italic:false,align:'left',lineHeight:1.3,rotation:0,opacity:100,strokeColor:'#000000',strokeWidth:0,shadowColor:'#000000',shadowBlur:0,shadowOffsetX:0,shadowOffsetY:0});
+  renderLayerUI();render();
+  if(mob||isMobile()){const t=document.querySelector('.mob-tab[data-panel="text"]');if(t)mobTab(t);}
+}
+function removeLayer(id){textLayers=textLayers.filter(l=>l.id!==id);renderLayerUI();render();}
+function updateLayer(id,key,val){const l=textLayers.find(l=>l.id===id);if(l){l[key]=val;render();}}
+function recalcLayerRange(l){
+  const w=canvas.width,h=canvas.height;
+  ['','Mob'].forEach(sfx=>{setRange(`tx_${l.id}${sfx}`,-Math.round(w*.1),Math.round(w*1.1),l.x);setRange(`ty_${l.id}${sfx}`,-Math.round(h*.1),Math.round(h*1.1),l.y);});
 }
 
-function removeLayer(id) { textLayers = textLayers.filter(l => l.id !== id); renderLayerUI(); render(); }
-
-function updateLayer(id, key, val) {
-  const l = textLayers.find(l => l.id === id);
-  if (l) { l[key] = val; render(); }
-}
-
-function recalcLayerRange(l) {
-  const w = canvas.width, h = canvas.height;
-  ['', 'Mob'].forEach(sfx => {
-    setRange(`tx_${l.id}${sfx}`, -Math.round(w * 0.1), Math.round(w * 1.1), l.x);
-    setRange(`ty_${l.id}${sfx}`, -Math.round(h * 0.1), Math.round(h * 1.1), l.y);
-  });
-}
-
-// ─────────────────────────────────────────────────────────────
-// FONT COMBO
-// ─────────────────────────────────────────────────────────────
-function buildFontCombo(layerId, currentFont) {
-  const wrap = document.createElement('div');
-  wrap.className = 'font-combo-wrap';
-  const input = document.createElement('input');
-  input.type = 'text'; input.value = currentFont; input.placeholder = 'Search or type font…';
-  const dd = document.createElement('div');
-  dd.className = 'font-dd';
-
-  function fill(q) {
-    dd.innerHTML = '';
-    const src = allFonts();
-    const filtered = q ? src.filter(f => f.label.toLowerCase().includes(q.toLowerCase())) : src;
-    (filtered.length ? filtered : src).slice(0, 200).forEach(f => {
-      const opt = document.createElement('div');
-      opt.className = 'font-opt'; opt.textContent = f.label;
-      opt.style.fontFamily = `"${f.value}", sans-serif`;
-      opt.addEventListener('mousedown', ev => {
-        ev.preventDefault(); input.value = f.value;
-        dd.classList.remove('open'); updateLayer(layerId, 'font', f.value);
-      });
-      dd.appendChild(opt);
+function buildFontCombo(layerId,currentFont){
+  const wrap=document.createElement('div'); wrap.className='font-combo-wrap';
+  const input=document.createElement('input'); input.type='text'; input.value=currentFont; input.placeholder='Search or type font…';
+  const dd=document.createElement('div'); dd.className='font-dd';
+  function fill(q){
+    dd.innerHTML=''; const src=allFonts();
+    const fil=q?src.filter(f=>f.label.toLowerCase().includes(q.toLowerCase())):src;
+    (fil.length?fil:src).slice(0,200).forEach(f=>{
+      const o=document.createElement('div'); o.className='font-opt'; o.textContent=f.label; o.style.fontFamily=`"${f.value}",sans-serif`;
+      o.addEventListener('mousedown',ev=>{ev.preventDefault();input.value=f.value;dd.classList.remove('open');updateLayer(layerId,'font',f.value);});
+      dd.appendChild(o);
     });
   }
-
-  input.addEventListener('focus', async () => { await fontsReady; fill(input.value); dd.classList.add('open'); });
-  input.addEventListener('input', () => { fill(input.value); dd.classList.add('open'); updateLayer(layerId, 'font', input.value); });
-  input.addEventListener('blur', () => setTimeout(() => dd.classList.remove('open'), 160));
-  wrap.appendChild(input); wrap.appendChild(dd);
-  return wrap;
+  input.addEventListener('focus',async()=>{await fontsReady;fill(input.value);dd.classList.add('open');});
+  input.addEventListener('input',()=>{fill(input.value);dd.classList.add('open');updateLayer(layerId,'font',input.value);});
+  input.addEventListener('blur',()=>setTimeout(()=>dd.classList.remove('open'),160));
+  wrap.appendChild(input); wrap.appendChild(dd); return wrap;
 }
 
-// ─────────────────────────────────────────────────────────────
-// LAYER UI — renders into both desktop + mobile containers
-// ─────────────────────────────────────────────────────────────
-function renderLayerUI() {
-  const w = canvas.width || 600, h = canvas.height || 400;
-  const xMin = -Math.round(w * 0.1), xMax = Math.round(w * 1.1);
-  const yMin = -Math.round(h * 0.1), yMax = Math.round(h * 1.1);
+function renderLayerUI(){
+  const w=canvas.width||600,h=canvas.height||400;
+  const xMin=-Math.round(w*.1),xMax=Math.round(w*1.1);
+  const yMin=-Math.round(h*.1),yMax=Math.round(h*1.1);
 
-  [{ containerId: 'textLayers', sfx: '' }, { containerId: 'textLayersMob', sfx: 'Mob' }].forEach(({ containerId, sfx }) => {
-    const container = document.getElementById(containerId); if (!container) return;
-    container.innerHTML = '';
-
-    textLayers.forEach((layer, i) => {
-      const div = document.createElement('div');
-      div.className = 'text-layer';
-      div.innerHTML = `
+  [['textLayers',''],['textLayersMob','Mob']].forEach(([cid,sfx])=>{
+    const ct=document.getElementById(cid);if(!ct)return; ct.innerHTML='';
+    textLayers.forEach((layer,i)=>{
+      const div=document.createElement('div'); div.className='layer-card'; div.dataset.id=layer.id; div.draggable=false;
+      div.innerHTML=`
         <div class="layer-header">
-          <span class="layer-title">Text ${i + 1}</span>
+          <span class="layer-drag" title="Drag to reorder">⠿</span>
+          <span class="layer-title">Text ${i+1}</span>
           <button class="layer-remove" onclick="removeLayer('${layer.id}')">✕</button>
         </div>
         <label>Text — Enter for new line</label>
         <textarea oninput="updateLayer('${layer.id}','text',this.value)">${escHtml(layer.text)}</textarea>
         <div class="slider-row">
-          <span class="axis-lbl">X</span>
-          <input type="range" id="tx_${layer.id}${sfx}" min="${xMin}" max="${xMax}" value="${layer.x}"
-            oninput="sv('tx_${layer.id}${sfx}','txn_${layer.id}${sfx}');updateLayer('${layer.id}','x',+this.value)">
-          <input type="number" class="num-val" id="txn_${layer.id}${sfx}" value="${layer.x}"
-            onchange="ns('txn_${layer.id}${sfx}','tx_${layer.id}${sfx}');updateLayer('${layer.id}','x',+this.value)">
+          <span class="axis-lbl" title="Double-click to reset" ondblclick="resetSlider('tx_${layer.id}${sfx}','txn_${layer.id}${sfx}',0,v=>updateLayer('${layer.id}','x',v))">X</span>
+          <input type="range" id="tx_${layer.id}${sfx}" min="${xMin}" max="${xMax}" value="${layer.x}" oninput="sv('tx_${layer.id}${sfx}','txn_${layer.id}${sfx}');updateLayer('${layer.id}','x',snap(+this.value))" ondblclick="resetSlider('tx_${layer.id}${sfx}','txn_${layer.id}${sfx}',0,v=>updateLayer('${layer.id}','x',v))">
+          <input type="number" class="num-val" id="txn_${layer.id}${sfx}" value="${layer.x}" onchange="ns('txn_${layer.id}${sfx}','tx_${layer.id}${sfx}');updateLayer('${layer.id}','x',snap(+this.value))">
         </div>
         <div class="slider-row">
-          <span class="axis-lbl">Y</span>
-          <input type="range" id="ty_${layer.id}${sfx}" min="${yMin}" max="${yMax}" value="${layer.y}"
-            oninput="sv('ty_${layer.id}${sfx}','tyn_${layer.id}${sfx}');updateLayer('${layer.id}','y',+this.value)">
-          <input type="number" class="num-val" id="tyn_${layer.id}${sfx}" value="${layer.y}"
-            onchange="ns('tyn_${layer.id}${sfx}','ty_${layer.id}${sfx}');updateLayer('${layer.id}','y',+this.value)">
+          <span class="axis-lbl" title="Double-click to reset" ondblclick="resetSlider('ty_${layer.id}${sfx}','tyn_${layer.id}${sfx}',0,v=>updateLayer('${layer.id}','y',v))">Y</span>
+          <input type="range" id="ty_${layer.id}${sfx}" min="${yMin}" max="${yMax}" value="${layer.y}" oninput="sv('ty_${layer.id}${sfx}','tyn_${layer.id}${sfx}');updateLayer('${layer.id}','y',snap(+this.value))" ondblclick="resetSlider('ty_${layer.id}${sfx}','tyn_${layer.id}${sfx}',0,v=>updateLayer('${layer.id}','y',v))">
+          <input type="number" class="num-val" id="tyn_${layer.id}${sfx}" value="${layer.y}" onchange="ns('tyn_${layer.id}${sfx}','ty_${layer.id}${sfx}');updateLayer('${layer.id}','y',snap(+this.value))">
+        </div>
+        <div class="slider-row">
+          <span class="axis-lbl" title="Double-click to reset" ondblclick="resetSlider('tro_${layer.id}${sfx}','tron_${layer.id}${sfx}',0,v=>updateLayer('${layer.id}','rotation',v))">°</span>
+          <input type="range" id="tro_${layer.id}${sfx}" min="-180" max="180" value="${layer.rotation}" oninput="sv('tro_${layer.id}${sfx}','tron_${layer.id}${sfx}');updateLayer('${layer.id}','rotation',+this.value)" ondblclick="resetSlider('tro_${layer.id}${sfx}','tron_${layer.id}${sfx}',0,v=>updateLayer('${layer.id}','rotation',v))">
+          <input type="number" class="num-val" id="tron_${layer.id}${sfx}" value="${layer.rotation}" min="-180" max="180" onchange="ns('tron_${layer.id}${sfx}','tro_${layer.id}${sfx}');updateLayer('${layer.id}','rotation',+this.value)">
         </div>
         <div class="row">
-          <div>
-            <label>Size px</label>
-            <input type="number" value="${layer.size}" min="4" max="800" onchange="updateLayer('${layer.id}','size',+this.value)">
-          </div>
-          <div>
-            <label>Line H</label>
-            <input type="number" value="${layer.lineHeight}" min="0.5" max="5" step="0.05" onchange="updateLayer('${layer.id}','lineHeight',+this.value)">
-          </div>
-          <div>
-            <label>Align</label>
+          <div><label>Size px</label><input type="number" value="${layer.size}" min="4" max="800" onchange="updateLayer('${layer.id}','size',+this.value)"></div>
+          <div><label>Line H</label><input type="number" value="${layer.lineHeight}" min="0.5" max="5" step="0.05" onchange="updateLayer('${layer.id}','lineHeight',+this.value)"></div>
+          <div><label>Align</label>
             <select onchange="updateLayer('${layer.id}','align',this.value)">
-              <option ${layer.align==='left'   ?'selected':''} value="left">Left</option>
-              <option ${layer.align==='center' ?'selected':''} value="center">Ctr</option>
-              <option ${layer.align==='right'  ?'selected':''} value="right">Right</option>
+              <option ${layer.align==='left'?'selected':''} value="left">Left</option>
+              <option ${layer.align==='center'?'selected':''} value="center">Ctr</option>
+              <option ${layer.align==='right'?'selected':''} value="right">Right</option>
             </select>
           </div>
         </div>
-        <label>Font</label>
-        <div id="fc_${layer.id}${sfx}"></div>
+        <label>Font</label><div id="fc_${layer.id}${sfx}"></div>
+        <label>Color</label>
         <div class="color-row">
-          <input type="color" value="${layer.color}"
-            oninput="updateLayer('${layer.id}','color',this.value);this.nextElementSibling.value=this.value">
-          <input type="text" value="${layer.color}"
-            onchange="updateLayer('${layer.id}','color',this.value);this.previousElementSibling.value=this.value">
+          <input type="color" value="${layer.color}" oninput="updateLayer('${layer.id}','color',this.value);this.nextElementSibling.value=this.value">
+          <input type="text" value="${layer.color}" onchange="updateLayer('${layer.id}','color',this.value);this.previousElementSibling.value=this.value">
         </div>
         <div class="check-row">
-          <label><input type="checkbox" ${layer.bold   ?'checked':''} onchange="updateLayer('${layer.id}','bold',this.checked)"> Bold</label>
-          <label><input type="checkbox" ${layer.italic ?'checked':''} onchange="updateLayer('${layer.id}','italic',this.checked)"> Italic</label>
+          <label><input type="checkbox" ${layer.bold?'checked':''} onchange="updateLayer('${layer.id}','bold',this.checked)"> Bold</label>
+          <label><input type="checkbox" ${layer.italic?'checked':''} onchange="updateLayer('${layer.id}','italic',this.checked)"> Italic</label>
+        </div>
+        <div class="sub-label">Opacity</div>
+        <div class="slider-row">
+          <span class="axis-lbl" title="Double-click to reset to 100%" ondblclick="resetSlider('top_${layer.id}${sfx}','topn_${layer.id}${sfx}',100,v=>updateLayer('${layer.id}','opacity',v))">α</span>
+          <input type="range" id="top_${layer.id}${sfx}" min="0" max="100" value="${layer.opacity}" oninput="sv('top_${layer.id}${sfx}','topn_${layer.id}${sfx}');updateLayer('${layer.id}','opacity',+this.value)" ondblclick="resetSlider('top_${layer.id}${sfx}','topn_${layer.id}${sfx}',100,v=>updateLayer('${layer.id}','opacity',v))">
+          <input type="number" class="num-val" id="topn_${layer.id}${sfx}" value="${layer.opacity}" min="0" max="100" onchange="ns('topn_${layer.id}${sfx}','top_${layer.id}${sfx}');updateLayer('${layer.id}','opacity',+this.value)">
+        </div>
+        <div class="sub-label">Stroke / Outline</div>
+        <div class="color-row">
+          <input type="color" value="${layer.strokeColor}" oninput="updateLayer('${layer.id}','strokeColor',this.value);this.nextElementSibling.value=this.value">
+          <input type="text" value="${layer.strokeColor}" onchange="updateLayer('${layer.id}','strokeColor',this.value);this.previousElementSibling.value=this.value">
+        </div>
+        <label>Stroke Width (0 = off)</label>
+        <input type="number" value="${layer.strokeWidth}" min="0" max="50" step="0.5" onchange="updateLayer('${layer.id}','strokeWidth',+this.value)">
+        <div class="sub-label">Shadow</div>
+        <div class="color-row">
+          <input type="color" value="${layer.shadowColor}" oninput="updateLayer('${layer.id}','shadowColor',this.value);this.nextElementSibling.value=this.value">
+          <input type="text" value="${layer.shadowColor}" onchange="updateLayer('${layer.id}','shadowColor',this.value);this.previousElementSibling.value=this.value">
+        </div>
+        <div class="row">
+          <div><label>Blur</label><input type="number" value="${layer.shadowBlur}" min="0" max="100" onchange="updateLayer('${layer.id}','shadowBlur',+this.value)"></div>
+          <div><label>Off X</label><input type="number" value="${layer.shadowOffsetX}" min="-100" max="100" onchange="updateLayer('${layer.id}','shadowOffsetX',+this.value)"></div>
+          <div><label>Off Y</label><input type="number" value="${layer.shadowOffsetY}" min="-100" max="100" onchange="updateLayer('${layer.id}','shadowOffsetY',+this.value)"></div>
         </div>
       `;
-      container.appendChild(div);
-      div.querySelector(`#fc_${layer.id}${sfx}`).appendChild(buildFontCombo(layer.id, layer.font));
+      ct.appendChild(div);
+      div.querySelector(`#fc_${layer.id}${sfx}`).appendChild(buildFontCombo(layer.id,layer.font));
     });
   });
 }
 
-// ─────────────────────────────────────────────────────────────
-// RENDER
-// ─────────────────────────────────────────────────────────────
-function render() {
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
-  if (baseImg) {
-    ctx.drawImage(baseImg, 0, 0);
-  } else {
-    ctx.fillStyle = '#1a1a1a'; ctx.fillRect(0, 0, canvas.width, canvas.height);
-    ctx.fillStyle = '#555'; ctx.font = '15px sans-serif';
-    ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-    ctx.fillText('Load a base stamp image to begin', canvas.width / 2, canvas.height / 2);
+// ─── RENDER ─────────────────────────────────────────────────
+let isExporting = false;
+
+function render(){
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+
+  // Base
+  if(baseImg){
+    if(baseRotation!==0){
+      const cx=canvas.width/2,cy=canvas.height/2; ctx.save(); ctx.translate(cx,cy); ctx.rotate(baseRotation*Math.PI/180); ctx.drawImage(baseImg,-baseImg.width/2,-baseImg.height/2); ctx.restore();
+    } else { ctx.drawImage(baseImg,0,0); }
+  } else if(!isExporting) {
+    ctx.fillStyle='#1a1a1a'; ctx.fillRect(0,0,canvas.width,canvas.height); ctx.fillStyle='#555'; ctx.font='15px sans-serif'; ctx.textAlign='center'; ctx.textBaseline='middle'; ctx.fillText('Load a base stamp image to begin',canvas.width/2,canvas.height/2);
   }
-  iconLayers.forEach(l => {
-    if (!l.img) return;
-    ctx.drawImage(l.img, l.x, l.y, l.img.width * l.scale / 100, l.img.height * l.scale / 100);
+
+  // Icons
+  iconLayers.forEach(l=>{
+    if(!l.img)return;
+    const w=l.img.width*l.scale/100, h=l.img.height*l.scale/100;
+    ctx.save(); ctx.globalAlpha=l.opacity/100;
+    if(l.rotation!==0){ ctx.translate(l.x+w/2,l.y+h/2); ctx.rotate(l.rotation*Math.PI/180); ctx.drawImage(l.img,-w/2,-h/2,w,h); }
+    else { ctx.drawImage(l.img,l.x,l.y,w,h); }
+    ctx.restore();
   });
-  textLayers.forEach(l => {
-    ctx.font = `${l.italic?'italic ':''}${l.bold?'bold ':''}${l.size}px "${l.font}"`;
-    ctx.fillStyle = l.color; ctx.textAlign = l.align; ctx.textBaseline = 'top';
-    const lh = l.size * l.lineHeight;
-    l.text.split('\n').forEach((line, li) => ctx.fillText(line, l.x, l.y + li * lh));
+
+  // Text
+  textLayers.forEach(l=>{
+    ctx.save();
+    ctx.globalAlpha=l.opacity/100;
+    ctx.font=`${l.italic?'italic ':''}${l.bold?'bold ':''}${l.size}px "${l.font}"`;
+    ctx.textAlign=l.align; ctx.textBaseline='top';
+    // Shadow
+    if(l.shadowBlur>0||l.shadowOffsetX!==0||l.shadowOffsetY!==0){ ctx.shadowColor=l.shadowColor; ctx.shadowBlur=l.shadowBlur; ctx.shadowOffsetX=l.shadowOffsetX; ctx.shadowOffsetY=l.shadowOffsetY; }
+    const lh=l.size*l.lineHeight;
+    const lines=l.text.split('\n');
+    const drawFn=(ox,oy)=>{
+      lines.forEach((line,li)=>{
+        const tx=ox+(l.rotation!==0?0:0), ty=oy+li*lh;
+        if(l.strokeWidth>0){ ctx.strokeStyle=l.strokeColor; ctx.lineWidth=l.strokeWidth*2; ctx.lineJoin='round'; ctx.strokeText(line,tx,ty); }
+        ctx.fillStyle=l.color; ctx.fillText(line,tx,ty);
+      });
+    };
+    if(l.rotation!==0){ ctx.translate(l.x,l.y); ctx.rotate(l.rotation*Math.PI/180); drawFn(0,0); }
+    else { drawFn(l.x,l.y); }
+    ctx.restore();
   });
 }
 
-// ─────────────────────────────────────────────────────────────
-// EXPORT / RESET
-// ─────────────────────────────────────────────────────────────
-function exportPNG() {
-  const a = document.createElement('a');
-  a.download = 'stamp_' + Date.now() + '.png';
-  a.href = canvas.toDataURL('image/png');
+// ─── SESSION SAVE / LOAD ────────────────────────────────────
+function saveSession(){
+  // We can't serialise Image objects directly, so we store dataURLs
+  const serializeIcon = async l => {
+    let dataUrl = null;
+    if(l.img){ const c=document.createElement('canvas'); c.width=l.img.width; c.height=l.img.height; c.getContext('2d').drawImage(l.img,0,0); dataUrl=c.toDataURL(); }
+    return {...l, imgData: dataUrl, img: undefined};
+  };
+  const serializeBase = () => {
+    if(!baseImg)return null;
+    const c=document.createElement('canvas'); c.width=baseImg.width; c.height=baseImg.height; c.getContext('2d').drawImage(baseImg,0,0); return c.toDataURL();
+  };
+
+  Promise.all(iconLayers.map(serializeIcon)).then(icons=>{
+    const session={
+      version:7,
+      canvasW:canvas.width, canvasH:canvas.height,
+      baseImgData:serializeBase(), baseRotation,
+      gridSize, snapEnabled, gridVisible,
+      iconLayers:icons,
+      textLayers:textLayers.map(l=>({...l}))
+    };
+    const blob=new Blob([JSON.stringify(session,null,2)],{type:'application/json'});
+    const a=document.createElement('a'); a.download='stamp_session_'+Date.now()+'.json'; a.href=URL.createObjectURL(blob); a.click();
+  });
+}
+
+async function loadSession(input){
+  const file=input.files[0]; if(!file)return; input.value='';
+  const text=await file.text();
+  try{
+    const s=JSON.parse(text);
+    // Canvas
+    canvas.width=s.canvasW||600; canvas.height=s.canvasH||400;
+    gridCanvas.width=canvas.width; gridCanvas.height=canvas.height;
+    document.getElementById('canvasW').value=canvas.width; document.getElementById('canvasH').value=canvas.height;
+    document.getElementById('canvasWMob').value=canvas.width; document.getElementById('canvasHMob').value=canvas.height;
+    // Grid
+    gridSize=s.gridSize||20; snapEnabled=!!s.snapEnabled; gridVisible=!!s.gridVisible;
+    document.getElementById('gridSize').value=gridSize; document.getElementById('gridSizeMob').value=gridSize;
+    document.getElementById('snapOn').checked=snapEnabled; document.getElementById('snapOnMob').checked=snapEnabled;
+    document.getElementById('gridVisible').checked=gridVisible; document.getElementById('gridVisibleMob').checked=gridVisible;
+    // Base
+    baseRotation=s.baseRotation||0;
+    ['baseRot','baseRotMob'].forEach(id=>{const el=document.getElementById(id);if(el)el.value=baseRotation;});
+    ['baseRotN','baseRotNMob'].forEach(id=>{const el=document.getElementById(id);if(el)el.value=baseRotation;});
+    if(s.baseImgData){ baseImg=await loadImageSrc(s.baseImgData); }else{baseImg=null;}
+    // Icon layers
+    iconLayers=[];
+    for(const il of (s.iconLayers||[])){
+      const l={...il,img:null};
+      if(il.imgData){try{l.img=await loadImageSrc(il.imgData);}catch{}}
+      iconLayers.push(l);
+    }
+    iconCount=iconLayers.length;
+    activeIconId=iconLayers.length?iconLayers[iconLayers.length-1].id:null;
+    // Text layers
+    textLayers=(s.textLayers||[]).map(l=>({strokeColor:'#000000',strokeWidth:0,shadowColor:'#000000',shadowBlur:0,shadowOffsetX:0,shadowOffsetY:0,opacity:100,...l}));
+    layerCount=textLayers.length;
+    renderIconLayerUI(); renderLayerUI(); renderGrid(); centreCanvas(); render();
+  }catch(e){alert('Could not load session: '+e.message);}
+}
+
+// ─── EXPORT / RESET ─────────────────────────────────────────
+function exportPNG(){
+  isExporting = true;
+  render();
+  const a=document.createElement('a');
+  a.download='stamp_'+Date.now()+'.png';
+  a.href=canvas.toDataURL('image/png');
   a.click();
+  isExporting = false;
+  render();
 }
 
-function resetAll() {
-  if (!confirm('Reset everything?')) return;
-  baseImg = null; iconLayers = []; iconCount = 0; activeIconId = null;
-  textLayers = []; layerCount = 0;
-  canvas.width = 600; canvas.height = 400;
-  renderIconLayerUI(); renderLayerUI(); centreCanvas(); render();
+function resetAll(){
+  if(!confirm('Reset everything?'))return;
+  baseImg=null;baseRotation=0;iconLayers=[];iconCount=0;activeIconId=null;textLayers=[];layerCount=0;
+  canvas.width=600;canvas.height=400;gridCanvas.width=600;gridCanvas.height=400;
+  ['baseRot','baseRotMob'].forEach(id=>{const el=document.getElementById(id);if(el)el.value=0;});
+  ['baseRotN','baseRotNMob'].forEach(id=>{const el=document.getElementById(id);if(el)el.value=0;});
+  renderIconLayerUI();renderLayerUI();renderGrid();centreCanvas();render();
 }
 
-// ─────────────────────────────────────────────────────────────
-// UTILS
-// ─────────────────────────────────────────────────────────────
-function toggleSection(el) {
-  el.classList.toggle('closed');
-  el.nextElementSibling.classList.toggle('closed');
-}
+// ─── UTILS ──────────────────────────────────────────────────
+function toggleSection(el){el.classList.toggle('closed');el.nextElementSibling.classList.toggle('closed');}
+function setupDrop(id,handler){const el=document.getElementById(id);if(!el)return;el.addEventListener('dragover',e=>{e.preventDefault();el.classList.add('over');});el.addEventListener('dragleave',()=>el.classList.remove('over'));el.addEventListener('drop',e=>{e.preventDefault();el.classList.remove('over');const f=e.dataTransfer.files[0];if(f)handler(f);});}
 
-function setupDrop(id, handler) {
-  const el = document.getElementById(id); if (!el) return;
-  el.addEventListener('dragover',  e => { e.preventDefault(); el.classList.add('over'); });
-  el.addEventListener('dragleave', ()  => el.classList.remove('over'));
-  el.addEventListener('drop', e => {
-    e.preventDefault(); el.classList.remove('over');
-    const file = e.dataTransfer.files[0]; if (file) handler(file);
-  });
-}
-
-// ─────────────────────────────────────────────────────────────
-// INIT
-// ─────────────────────────────────────────────────────────────
+// ─── INIT ────────────────────────────────────────────────────
 updateHint();
 window.addEventListener('resize', updateHint);
 centreCanvas();
