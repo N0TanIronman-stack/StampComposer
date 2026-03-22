@@ -1,0 +1,1085 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Stamp Composer</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Barlow+Condensed:wght@400;600;700;900&display=swap');
+
+  :root {
+    --bg: #0f0f0f;
+    --panel: #1a1a1a;
+    --border: #2e2e2e;
+    --accent: #e8c84a;
+    --accent2: #e05c3a;
+    --text: #d4d4d4;
+    --muted: #666;
+    --input-bg: #111;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { height: 100%; overflow: hidden; touch-action: none; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 15px;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* ── HEADER ── */
+  header {
+    flex-shrink: 0;
+    padding: 12px 24px;
+    border-bottom: 2px solid var(--accent);
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    background: #111;
+    z-index: 10;
+  }
+  header h1 { font-size: 20px; font-weight: 900; letter-spacing: 3px; text-transform: uppercase; color: var(--accent); }
+  header span { font-family: 'Share Tech Mono', monospace; font-size: 10px; color: var(--muted); letter-spacing: 1px; }
+
+  /* ── DESKTOP WORKSPACE ── */
+  .workspace { flex: 1; min-height: 0; display: flex; overflow: hidden; }
+
+  /* ── SIDEBAR (desktop) ── */
+  .sidebar {
+    width: 310px; min-width: 310px; flex-shrink: 0;
+    background: var(--panel);
+    border-right: 1px solid var(--border);
+    overflow-y: auto; overflow-x: hidden;
+    height: 100%;
+  }
+
+  .section { border-bottom: 1px solid var(--border); }
+
+  .section-title {
+    font-size: 10px; font-weight: 700; letter-spacing: 3px; text-transform: uppercase;
+    color: var(--accent);
+    display: flex; align-items: center; gap: 8px;
+    padding: 11px 16px;
+    cursor: pointer; user-select: none;
+    transition: background 0.15s;
+  }
+  .section-title:hover { background: rgba(232,200,74,0.05); }
+  .section-title::before { content: ''; width: 8px; height: 2px; background: var(--accent); flex-shrink: 0; }
+  .section-title .chev { margin-left: auto; font-size: 12px; color: var(--muted); transition: transform 0.2s; }
+  .section-title.closed .chev { transform: rotate(-90deg); }
+  .section-body { padding: 0 16px 12px; }
+  .section-body.closed { display: none; }
+
+  /* ── CANVAS PANE ── */
+  .canvas-area {
+    flex: 1; min-width: 0; height: 100%;
+    position: relative; overflow: hidden;
+    background:
+      repeating-linear-gradient(0deg, transparent, transparent 24px, #1c1c1c 24px, #1c1c1c 25px),
+      repeating-linear-gradient(90deg, transparent, transparent 24px, #1c1c1c 24px, #1c1c1c 25px),
+      #0f0f0f;
+    cursor: default;
+  }
+  #viewport { position: absolute; top: 0; left: 0; transform-origin: 0 0; will-change: transform; }
+  #c { display: block; box-shadow: 0 0 0 1px var(--border), 0 8px 40px rgba(0,0,0,0.6); }
+
+  .canvas-hint {
+    position: absolute; bottom: 12px; left: 50%; transform: translateX(-50%);
+    font-size: 10px; letter-spacing: 1px; color: var(--muted);
+    font-family: 'Share Tech Mono', monospace; white-space: nowrap;
+    pointer-events: none; background: rgba(0,0,0,0.5); padding: 4px 10px;
+  }
+  .zoom-badge {
+    position: absolute; top: 12px; right: 14px;
+    font-family: 'Share Tech Mono', monospace; font-size: 11px; color: var(--accent);
+    background: rgba(0,0,0,0.6); padding: 3px 8px; pointer-events: none; border: 1px solid var(--border);
+  }
+
+  /* ── SHARED CONTROLS ── */
+  label { display: block; font-size: 10px; letter-spacing: 1px; color: var(--muted); margin-bottom: 3px; text-transform: uppercase; }
+
+  input[type="text"], input[type="number"], input[type="url"], select, textarea {
+    width: 100%; background: var(--input-bg); border: 1px solid var(--border);
+    color: var(--text); padding: 6px 9px;
+    font-family: 'Share Tech Mono', monospace; font-size: 12px;
+    outline: none; margin-bottom: 8px; transition: border-color 0.15s;
+  }
+  textarea { resize: vertical; min-height: 50px; line-height: 1.5; }
+  input:focus, textarea:focus, select:focus { border-color: var(--accent); }
+
+  .btn {
+    display: block; width: 100%; padding: 8px 10px;
+    background: transparent; border: 1px solid var(--accent); color: var(--accent);
+    font-family: 'Barlow Condensed', sans-serif; font-size: 12px; font-weight: 700;
+    letter-spacing: 2px; text-transform: uppercase; cursor: pointer;
+    transition: background 0.15s, color 0.15s; margin-bottom: 6px;
+  }
+  .btn:hover { background: var(--accent); color: #000; }
+  .btn-primary { background: var(--accent); color: #000; }
+  .btn-primary:hover { background: #ffd84a; }
+  .btn-sm { font-size: 11px; padding: 5px 8px; }
+
+  .drop-zone {
+    border: 2px dashed var(--border); padding: 14px; text-align: center;
+    color: var(--muted); font-size: 11px; letter-spacing: 1px;
+    cursor: pointer; transition: border-color 0.2s, color 0.2s; margin-bottom: 8px;
+  }
+  .drop-zone:hover, .drop-zone.over { border-color: var(--accent); color: var(--accent); }
+  .drop-zone input[type="file"] { display: none; }
+
+  .slider-row { display: flex; align-items: center; gap: 6px; margin-bottom: 8px; }
+  .axis-lbl { width: 14px; min-width: 14px; font-size: 10px; font-weight: 700; color: var(--accent); font-family: 'Share Tech Mono', monospace; text-align: center; }
+  .slider-row input[type="range"] { flex: 1; accent-color: var(--accent); margin-bottom: 0; cursor: pointer; }
+  .num-val { width: 56px; min-width: 56px; background: var(--input-bg); border: 1px solid var(--border); color: var(--text); padding: 4px 5px; font-family: 'Share Tech Mono', monospace; font-size: 11px; outline: none; text-align: right; margin-bottom: 0; }
+  .num-val:focus { border-color: var(--accent); }
+
+  .text-layers, .icon-layers { display: flex; flex-direction: column; gap: 8px; }
+
+  .text-layer {
+    background: #111; border: 1px solid var(--border); padding: 10px;
+  }
+  .layer-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+  .layer-title { font-size: 10px; font-weight: 700; letter-spacing: 2px; color: var(--accent); text-transform: uppercase; }
+  .layer-remove { background: none; border: none; color: var(--muted); cursor: pointer; font-size: 15px; padding: 0 4px; line-height: 1; }
+  .layer-remove:hover { color: var(--accent2); }
+
+  .row { display: flex; gap: 8px; }
+  .row > * { flex: 1; }
+
+  .color-row { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+  .color-row input[type="color"] { width: 32px; height: 25px; border: 1px solid var(--border); padding: 2px; background: var(--input-bg); cursor: pointer; flex-shrink: 0; }
+  .color-row input[type="text"] { flex: 1; margin-bottom: 0; }
+
+  .check-row { display: flex; gap: 14px; margin-bottom: 8px; }
+  .check-row label { display: flex; align-items: center; gap: 5px; cursor: pointer; margin-bottom: 0; font-size: 11px; color: var(--text); text-transform: none; letter-spacing: 0; }
+  input[type="checkbox"] { accent-color: var(--accent); width: 13px; height: 13px; cursor: pointer; }
+
+  .font-combo-wrap { position: relative; margin-bottom: 8px; }
+  .font-combo-wrap input[type="text"] { margin-bottom: 0; width: 100%; }
+  .font-dd { position: absolute; top: 100%; left: 0; right: 0; max-height: 200px; overflow-y: auto; background: #1e1e1e; border: 1px solid var(--accent); border-top: none; z-index: 500; display: none; }
+  .font-dd.open { display: block; }
+  .font-opt { padding: 6px 10px; font-size: 13px; cursor: pointer; color: var(--text); border-bottom: 1px solid #222; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .font-opt:hover { background: rgba(232,200,74,0.12); color: var(--accent); }
+
+  .tag { display: inline-block; background: rgba(232,200,74,0.12); color: var(--accent); border: 1px solid rgba(232,200,74,0.3); padding: 2px 7px; font-size: 10px; letter-spacing: 1px; font-family: 'Share Tech Mono', monospace; margin-bottom: 8px; }
+  .hint { font-size: 10px; color: var(--muted); letter-spacing: 0.5px; margin-bottom: 8px; }
+  .err { font-size: 10px; color: var(--accent2); letter-spacing: 0.5px; margin-bottom: 6px; display: none; }
+
+  .font-chips { display: flex; flex-wrap: wrap; gap: 5px; margin-bottom: 8px; }
+  .font-chip { display: flex; align-items: center; gap: 4px; background: rgba(232,200,74,0.1); border: 1px solid rgba(232,200,74,0.3); padding: 2px 8px; font-family: 'Share Tech Mono', monospace; font-size: 10px; color: var(--accent); }
+  .chip-remove { background: none; border: none; color: var(--muted); cursor: pointer; font-size: 13px; padding: 0; line-height: 1; }
+  .chip-remove:hover { color: var(--accent2); }
+
+  /* ════════════════════════════════════════════
+     MOBILE  ≤ 768px
+     Canvas fills top, bottom drawer with tabs
+     ════════════════════════════════════════════ */
+  .mob-tabs   { display: none; }
+  .mob-panels { display: none; }
+
+  @media (max-width: 768px) {
+    header { padding: 10px 16px; }
+    header h1 { font-size: 15px; letter-spacing: 2px; }
+    header span { display: none; }
+
+    /* Stack vertically: canvas on top, drawer on bottom */
+    .workspace { flex-direction: column; }
+
+    /* Canvas fills remaining space above drawer */
+    .canvas-area { flex: 1; min-height: 0; height: auto !important; }
+
+    .canvas-hint { font-size: 9px; letter-spacing: 0; white-space: normal; text-align: center; max-width: 90%; }
+
+    /* ── DRAWER / SIDEBAR ── */
+    .sidebar {
+      width: 100% !important;
+      min-width: unset !important;
+      height: auto;
+      border-right: none;
+      border-top: 2px solid var(--accent);
+      flex-shrink: 0;
+      overflow: visible;
+      display: flex;
+      flex-direction: column;
+      /* Collapsed = just tab bar (48px); expanded = up to 52vh */
+      max-height: 48px;
+      transition: max-height 0.28s ease;
+    }
+    .sidebar.open { max-height: 52vh; }
+
+    /* Hide desktop collapsible sections on mobile */
+    .sidebar > .section { display: none; }
+
+    /* ── TAB BAR ── */
+    .mob-tabs {
+      display: flex;
+      flex-shrink: 0;
+      background: #111;
+      overflow-x: auto;
+      scrollbar-width: none;
+      height: 48px;
+    }
+    .mob-tabs::-webkit-scrollbar { display: none; }
+
+    .mob-tab {
+      flex-shrink: 0;
+      padding: 0 16px;
+      height: 48px;
+      display: flex; align-items: center;
+      font-size: 11px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase;
+      color: var(--muted); cursor: pointer;
+      border-bottom: 2px solid transparent;
+      white-space: nowrap;
+      transition: color 0.15s, border-color 0.15s;
+      user-select: none;
+    }
+    .mob-tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+
+    .mob-toggle {
+      margin-left: auto; flex-shrink: 0;
+      padding: 0 16px; height: 48px;
+      display: flex; align-items: center;
+      color: var(--muted); cursor: pointer; font-size: 18px;
+      transition: transform 0.28s;
+      user-select: none;
+    }
+    .sidebar.open .mob-toggle { transform: rotate(180deg); }
+
+    /* ── PANELS ── */
+    .mob-panels { display: block; flex: 1; overflow-y: auto; overflow-x: hidden; }
+    .mob-panel { display: none; padding: 12px 16px 16px; }
+    .mob-panel.active { display: block; }
+
+    /* Bigger touch targets */
+    .btn { padding: 13px 10px; font-size: 15px; margin-bottom: 8px; }
+    .btn-sm { padding: 10px 8px; font-size: 13px; }
+
+    input[type="text"], input[type="number"], input[type="url"], select, textarea {
+      padding: 10px 9px; font-size: 15px; margin-bottom: 10px;
+    }
+
+    .slider-row { margin-bottom: 12px; }
+    .slider-row input[type="range"] { height: 32px; }
+    .num-val { width: 64px; min-width: 64px; padding: 8px 6px; font-size: 13px; }
+
+    label { font-size: 12px; margin-bottom: 5px; }
+    .drop-zone { padding: 22px 14px; font-size: 14px; }
+
+    .text-layer { padding: 12px; }
+    .layer-title { font-size: 12px; }
+    .layer-remove { font-size: 22px; padding: 0 6px; }
+
+    .hint { font-size: 12px; }
+    .tag { font-size: 11px; padding: 3px 9px; }
+
+    .font-opt { font-size: 15px; padding: 10px; }
+    .font-dd { max-height: 160px; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Stamp Composer</h1>
+  <span>PNG LAYER TOOL — v6</span>
+</header>
+
+<div class="workspace">
+
+  <!-- ══ SIDEBAR (desktop) / DRAWER (mobile) ══ -->
+  <div class="sidebar" id="sidebar">
+
+    <!-- MOBILE UI: tab bar + panels -->
+    <div class="mob-tabs">
+      <div class="mob-tab active" data-panel="base"   onclick="mobTab(this)">Base</div>
+      <div class="mob-tab"        data-panel="icons"  onclick="mobTab(this)">Icons</div>
+      <div class="mob-tab"        data-panel="text"   onclick="mobTab(this)">Text</div>
+      <div class="mob-tab"        data-panel="fonts"  onclick="mobTab(this)">Fonts</div>
+      <div class="mob-tab"        data-panel="export" onclick="mobTab(this)">Export</div>
+      <div class="mob-toggle" onclick="toggleDrawer()">▲</div>
+    </div>
+
+    <div class="mob-panels">
+      <div class="mob-panel active" id="mob-base">
+        <div class="drop-zone" onclick="document.getElementById('baseFileMob').click()">
+          Tap to load base stamp image
+          <input type="file" id="baseFileMob" accept="image/*">
+        </div>
+        <label>Or image URL</label>
+        <input type="url" id="baseUrlMob" placeholder="https://...">
+        <div class="err" id="baseErrMob">Could not load — try loading as file instead.</div>
+        <button class="btn" onclick="loadBaseFromUrlMob()">Load from URL</button>
+      </div>
+
+      <div class="mob-panel" id="mob-icons">
+        <div class="icon-layers" id="iconLayersMob"></div>
+        <button class="btn" onclick="addIconLayer(true)" style="margin-top:8px">+ Add Icon Layer</button>
+      </div>
+
+      <div class="mob-panel" id="mob-text">
+        <div class="text-layers" id="textLayersMob"></div>
+        <button class="btn" onclick="addTextLayer(true)" style="margin-top:8px">+ Add Text Layer</button>
+      </div>
+
+      <div class="mob-panel" id="mob-fonts">
+        <p class="hint">Load .ttf / .otf / .woff files. They appear in all font dropdowns.</p>
+        <div class="drop-zone" onclick="document.getElementById('fontFileMob').click()">
+          Tap to load font file
+          <input type="file" id="fontFileMob" accept=".ttf,.otf,.woff,.woff2" multiple>
+        </div>
+        <div class="font-chips" id="fontChipsMob"></div>
+      </div>
+
+      <div class="mob-panel" id="mob-export">
+        <button class="btn btn-primary" onclick="exportPNG()">Export as PNG</button>
+        <button class="btn"             onclick="resetAll()">Reset All</button>
+        <button class="btn btn-sm"      onclick="resetView()">Reset View</button>
+        <p class="hint" style="margin-top:10px">Pinch to zoom · Single-finger drag to pan · Tap canvas to place icon</p>
+      </div>
+    </div>
+
+    <!-- DESKTOP UI: collapsible sections -->
+    <div class="section">
+      <div class="section-title" onclick="toggleSection(this)">Base Stamp <span class="chev">▾</span></div>
+      <div class="section-body">
+        <div class="drop-zone" id="baseDrop" onclick="document.getElementById('baseFile').click()">
+          Drop image here or click to browse
+          <input type="file" id="baseFile" accept="image/*">
+        </div>
+        <label>Or image URL</label>
+        <input type="url" id="baseUrl" placeholder="https://...">
+        <div class="err" id="baseErr">Could not load — try downloading and loading as file.</div>
+        <button class="btn" onclick="loadBaseFromUrl()">Load from URL</button>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-title" onclick="toggleSection(this)">Icons / Overlays <span class="chev">▾</span></div>
+      <div class="section-body">
+        <div class="icon-layers" id="iconLayers"></div>
+        <button class="btn" onclick="addIconLayer()" style="margin-top:8px">+ Add Icon Layer</button>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-title" onclick="toggleSection(this)">Custom Fonts <span class="chev">▾</span></div>
+      <div class="section-body">
+        <p class="hint">Load .ttf / .otf / .woff files. Fonts appear in all text layer dropdowns.</p>
+        <div class="drop-zone" id="fontDrop" onclick="document.getElementById('fontFile').click()">
+          Drop font file or click to browse
+          <input type="file" id="fontFile" accept=".ttf,.otf,.woff,.woff2" multiple>
+        </div>
+        <div class="font-chips" id="fontChips"></div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-title" onclick="toggleSection(this)">Text Layers <span class="chev">▾</span></div>
+      <div class="section-body">
+        <div class="text-layers" id="textLayers"></div>
+        <button class="btn" onclick="addTextLayer()" style="margin-top:8px">+ Add Text Layer</button>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-title" onclick="toggleSection(this)">Export <span class="chev">▾</span></div>
+      <div class="section-body">
+        <button class="btn btn-primary" onclick="exportPNG()">Export as PNG</button>
+        <button class="btn"             onclick="resetAll()">Reset All</button>
+        <button class="btn btn-sm"      onclick="resetView()">Reset View</button>
+      </div>
+    </div>
+
+  </div><!-- /sidebar -->
+
+  <!-- ══ CANVAS PANE ══ -->
+  <div class="canvas-area" id="canvasArea">
+    <div id="viewport">
+      <canvas id="c" width="600" height="400"></canvas>
+    </div>
+    <div class="canvas-hint" id="canvasHint">SCROLL TO ZOOM · MIDDLE-DRAG OR SPACE+DRAG TO PAN · CLICK TO PLACE ICON</div>
+    <div class="zoom-badge" id="zoomBadge">100%</div>
+  </div>
+
+</div><!-- /workspace -->
+
+<script>
+'use strict';
+
+// ─────────────────────────────────────────────────────────────
+// GLOBALS
+// ─────────────────────────────────────────────────────────────
+const canvas     = document.getElementById('c');
+const ctx        = canvas.getContext('2d');
+const canvasArea = document.getElementById('canvasArea');
+const viewport   = document.getElementById('viewport');
+const zoomBadge  = document.getElementById('zoomBadge');
+const sidebar    = document.getElementById('sidebar');
+
+let baseImg      = null;
+let iconLayers   = [];   // { id, img, x, y, scale }
+let iconCount    = 0;
+let activeIconId = null;
+let textLayers   = [];
+let layerCount   = 0;
+
+// Is this a mobile/touch device?
+const isMobile = () => window.matchMedia('(max-width: 768px)').matches;
+
+// ─────────────────────────────────────────────────────────────
+// MOBILE DRAWER
+// ─────────────────────────────────────────────────────────────
+function toggleDrawer() {
+  sidebar.classList.toggle('open');
+}
+
+function mobTab(el) {
+  // Open drawer if closed
+  if (!sidebar.classList.contains('open')) sidebar.classList.add('open');
+  // Activate tab
+  document.querySelectorAll('.mob-tab').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+  // Show panel
+  const panel = el.dataset.panel;
+  document.querySelectorAll('.mob-panel').forEach(p => p.classList.remove('active'));
+  document.getElementById('mob-' + panel).classList.add('active');
+}
+
+// Update canvas hint for mobile
+function updateHint() {
+  const hint = document.getElementById('canvasHint');
+  if (isMobile()) {
+    hint.textContent = 'PINCH ZOOM · DRAG TO PAN · TAP TO PLACE ICON';
+  } else {
+    hint.textContent = 'SCROLL TO ZOOM · MIDDLE-DRAG OR SPACE+DRAG TO PAN · CLICK TO PLACE ICON';
+  }
+}
+
+// ─────────────────────────────────────────────────────────────
+// VIEWPORT — pan + zoom (desktop mouse)
+// ─────────────────────────────────────────────────────────────
+let vpX = 0, vpY = 0, vpZ = 1.0;
+const MIN_Z = 0.05, MAX_Z = 10;
+let isPanning = false, spaceDown = false;
+let panStartX = 0, panStartY = 0, panOriginX = 0, panOriginY = 0;
+
+function applyViewport() {
+  viewport.style.transform = `translate(${vpX}px, ${vpY}px) scale(${vpZ})`;
+  zoomBadge.textContent = Math.round(vpZ * 100) + '%';
+}
+
+function centreCanvas() {
+  const ar = canvasArea.getBoundingClientRect();
+  const fit = Math.min(1, (ar.width - 60) / canvas.width, (ar.height - 60) / canvas.height);
+  vpZ = fit;
+  vpX = (ar.width  - canvas.width  * vpZ) / 2;
+  vpY = (ar.height - canvas.height * vpZ) / 2;
+  applyViewport();
+}
+
+function resetView() { centreCanvas(); }
+
+// Scroll zoom
+canvasArea.addEventListener('wheel', e => {
+  e.preventDefault();
+  const rect = canvasArea.getBoundingClientRect();
+  const mx = e.clientX - rect.left, my = e.clientY - rect.top;
+  const delta = e.deltaY < 0 ? 1.1 : 1 / 1.1;
+  const nz = Math.min(MAX_Z, Math.max(MIN_Z, vpZ * delta));
+  vpX = mx - (mx - vpX) * (nz / vpZ);
+  vpY = my - (my - vpY) * (nz / vpZ);
+  vpZ = nz;
+  applyViewport();
+}, { passive: false });
+
+// Middle-mouse / Space+drag pan
+canvasArea.addEventListener('mousedown', e => {
+  if (e.button === 1 || (e.button === 0 && spaceDown)) {
+    e.preventDefault();
+    isPanning = true;
+    panStartX = e.clientX; panStartY = e.clientY;
+    panOriginX = vpX; panOriginY = vpY;
+    canvasArea.style.cursor = 'grabbing';
+  }
+});
+window.addEventListener('mousemove', e => {
+  if (!isPanning) return;
+  vpX = panOriginX + (e.clientX - panStartX);
+  vpY = panOriginY + (e.clientY - panStartY);
+  applyViewport();
+});
+window.addEventListener('mouseup', () => {
+  if (isPanning) { isPanning = false; canvasArea.style.cursor = spaceDown ? 'grab' : 'default'; }
+});
+window.addEventListener('keydown', e => {
+  if (e.code === 'Space' && !e.target.matches('input,textarea,select')) {
+    spaceDown = true; canvasArea.style.cursor = 'grab'; e.preventDefault();
+  }
+});
+window.addEventListener('keyup', e => {
+  if (e.code === 'Space') { spaceDown = false; canvasArea.style.cursor = 'default'; }
+});
+canvasArea.addEventListener('auxclick', e => { if (e.button === 1) e.preventDefault(); });
+
+// Click canvas → snap active icon (desktop)
+canvas.addEventListener('click', e => {
+  if (!activeIconId || isPanning || spaceDown) return;
+  const vr = viewport.getBoundingClientRect();
+  const x = Math.round((e.clientX - vr.left) / vpZ);
+  const y = Math.round((e.clientY - vr.top)  / vpZ);
+  snapIconTo(activeIconId, x, y);
+});
+
+// ─────────────────────────────────────────────────────────────
+// TOUCH — pinch zoom + single-finger pan (mobile)
+// ─────────────────────────────────────────────────────────────
+let touch1 = null, touch2 = null;
+let touchPanOriginX = 0, touchPanOriginY = 0;
+let touchPanStartX  = 0, touchPanStartY  = 0;
+let pinchStartDist  = 0, pinchStartZ     = 0;
+let pinchMidX = 0, pinchMidY = 0;
+let touchStartVpX = 0, touchStartVpY = 0;
+let didPan = false;
+
+canvasArea.addEventListener('touchstart', e => {
+  e.preventDefault();
+  didPan = false;
+  if (e.touches.length === 1) {
+    touch1 = e.touches[0];
+    touchPanStartX = touch1.clientX; touchPanStartY = touch1.clientY;
+    touchPanOriginX = vpX; touchPanOriginY = vpY;
+  } else if (e.touches.length === 2) {
+    touch1 = e.touches[0]; touch2 = e.touches[1];
+    pinchStartDist = Math.hypot(touch2.clientX - touch1.clientX, touch2.clientY - touch1.clientY);
+    pinchStartZ = vpZ;
+    const rect = canvasArea.getBoundingClientRect();
+    pinchMidX = (touch1.clientX + touch2.clientX) / 2 - rect.left;
+    pinchMidY = (touch1.clientY + touch2.clientY) / 2 - rect.top;
+    touchStartVpX = vpX; touchStartVpY = vpY;
+    didPan = true; // suppress tap-to-place on pinch
+  }
+}, { passive: false });
+
+canvasArea.addEventListener('touchmove', e => {
+  e.preventDefault();
+  if (e.touches.length === 1) {
+    const t = e.touches[0];
+    const dx = t.clientX - touchPanStartX;
+    const dy = t.clientY - touchPanStartY;
+    if (Math.abs(dx) > 3 || Math.abs(dy) > 3) didPan = true;
+    vpX = touchPanOriginX + dx;
+    vpY = touchPanOriginY + dy;
+    applyViewport();
+  } else if (e.touches.length === 2) {
+    const t1 = e.touches[0], t2 = e.touches[1];
+    const dist = Math.hypot(t2.clientX - t1.clientX, t2.clientY - t1.clientY);
+    const nz = Math.min(MAX_Z, Math.max(MIN_Z, pinchStartZ * (dist / pinchStartDist)));
+    // Keep pinch midpoint stationary
+    vpX = pinchMidX - (pinchMidX - touchStartVpX) * (nz / pinchStartZ);
+    vpY = pinchMidY - (pinchMidY - touchStartVpY) * (nz / pinchStartZ);
+    vpZ = nz;
+    applyViewport();
+  }
+}, { passive: false });
+
+canvasArea.addEventListener('touchend', e => {
+  e.preventDefault();
+  if (e.changedTouches.length === 1 && !didPan && activeIconId) {
+    // Tap to place icon
+    const t = e.changedTouches[0];
+    const vr = viewport.getBoundingClientRect();
+    const x = Math.round((t.clientX - vr.left) / vpZ);
+    const y = Math.round((t.clientY - vr.top)  / vpZ);
+    snapIconTo(activeIconId, x, y);
+  }
+  touch1 = null; touch2 = null;
+}, { passive: false });
+
+function snapIconTo(id, x, y) {
+  const il = iconLayers.find(l => l.id === id);
+  if (!il) return;
+  il.x = x; il.y = y;
+  // Update slider + number inputs (desktop and mobile)
+  ['', 'Mob'].forEach(sfx => {
+    const xs = document.getElementById(`ix_${id}${sfx}`);
+    const xn = document.getElementById(`ixn_${id}${sfx}`);
+    const ys = document.getElementById(`iy_${id}${sfx}`);
+    const yn = document.getElementById(`iyn_${id}${sfx}`);
+    if (xs) xs.value = x;  if (xn) xn.value = x;
+    if (ys) ys.value = y;  if (yn) yn.value = y;
+  });
+  render();
+}
+
+// ─────────────────────────────────────────────────────────────
+// SYSTEM + CUSTOM FONTS
+// ─────────────────────────────────────────────────────────────
+let systemFonts = [], loadedFonts = [];
+
+const FALLBACK_FONTS = ['Arial','Arial Black','Bahnschrift','Calibri','Cambria','Candara',
+  'Comic Sans MS','Consolas','Constantia','Courier New','Franklin Gothic Medium','Gabriola',
+  'Georgia','Impact','Lucida Console','Lucida Sans Unicode','MS Gothic','Palatino Linotype',
+  'Segoe Print','Segoe Script','Segoe UI','SimSun','Tahoma','Times New Roman','Trebuchet MS','Verdana'
+].map(f => ({ label: f, value: f }));
+
+async function loadSystemFonts() {
+  if (!('queryLocalFonts' in window)) { systemFonts = FALLBACK_FONTS; return; }
+  try {
+    const raw = await window.queryLocalFonts();
+    const seen = new Set(), out = [];
+    for (const f of raw) {
+      for (const v of [f.family, f.fullName, f.postscriptName]) {
+        if (v && !seen.has(v)) { seen.add(v); out.push({ label: v, value: v }); }
+      }
+    }
+    out.sort((a, b) => a.label.localeCompare(b.label));
+    systemFonts = out;
+  } catch { systemFonts = FALLBACK_FONTS; }
+}
+const fontsReady = loadSystemFonts();
+
+// Font file loading — desktop inputs
+document.getElementById('fontFile').addEventListener('change', e => {
+  [...e.target.files].forEach(loadFontFile); e.target.value = '';
+});
+setupDrop('fontDrop', file => { if (/\.(ttf|otf|woff2?)$/i.test(file.name)) loadFontFile(file); });
+
+// Font file loading — mobile input
+document.getElementById('fontFileMob').addEventListener('change', e => {
+  [...e.target.files].forEach(loadFontFile); e.target.value = '';
+});
+
+async function loadFontFile(file) {
+  const reader = new FileReader();
+  reader.onload = async ev => {
+    const name = file.name.replace(/\.[^.]+$/, '').replace(/[^a-zA-Z0-9 _-]/g, '');
+    try {
+      const ff = new FontFace(name, ev.target.result);
+      await ff.load();
+      document.fonts.add(ff);
+      loadedFonts.push({ name, family: name });
+      renderFontChips();
+      renderLayerUI(); renderIconLayerUI();
+    } catch(err) { alert(`Could not load font "${file.name}": ${err.message}`); }
+  };
+  reader.readAsArrayBuffer(file);
+}
+
+function removeFontByName(name) {
+  for (const f of document.fonts) { if (f.family === name) { document.fonts.delete(f); break; } }
+  loadedFonts = loadedFonts.filter(f => f.name !== name);
+  renderFontChips(); renderLayerUI();
+}
+
+function renderFontChips() {
+  ['fontChips','fontChipsMob'].forEach(id => {
+    const el = document.getElementById(id); if (!el) return;
+    el.innerHTML = '';
+    loadedFonts.forEach(f => {
+      const chip = document.createElement('div');
+      chip.className = 'font-chip';
+      chip.innerHTML = `<span style="font-family:'${f.family}'">${f.name}</span>
+        <button class="chip-remove" onclick="removeFontByName('${f.name.replace(/'/g,"\\'")}')">✕</button>`;
+      el.appendChild(chip);
+    });
+  });
+}
+
+function allFonts() {
+  return [...loadedFonts.map(f => ({ label: '★ ' + f.name, value: f.family })), ...systemFonts];
+}
+
+// ─────────────────────────────────────────────────────────────
+// HELPERS
+// ─────────────────────────────────────────────────────────────
+function loadImage(src) {
+  return new Promise((res, rej) => {
+    const img = new Image(); img.crossOrigin = 'anonymous';
+    img.onload = () => res(img); img.onerror = () => rej(new Error('load failed'));
+    img.src = src;
+  });
+}
+function fileToDataUrl(file) {
+  return new Promise(res => { const fr = new FileReader(); fr.onload = e => res(e.target.result); fr.readAsDataURL(file); });
+}
+function sv(sId, nId) { const n = document.getElementById(nId); if(n) n.value = document.getElementById(sId).value; }
+function ns(nId, sId) { const s = document.getElementById(sId); if(s) s.value = document.getElementById(nId).value; }
+function setRange(id, min, max, val) {
+  const el = document.getElementById(id); if (!el) return;
+  el.min = min; el.max = max;
+  el.value = Math.min(max, Math.max(min, val !== undefined ? val : +el.value));
+}
+function escHtml(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function showErr(id, show) { const el = document.getElementById(id); if(el) el.style.display = show ? 'block' : 'none'; }
+
+// ─────────────────────────────────────────────────────────────
+// BASE IMAGE
+// ─────────────────────────────────────────────────────────────
+async function handleBaseFile(file) {
+  baseImg = await loadImage(await fileToDataUrl(file)); onBaseLoaded();
+}
+document.getElementById('baseFile').addEventListener('change', e => { if(e.target.files[0]) handleBaseFile(e.target.files[0]); });
+document.getElementById('baseFileMob').addEventListener('change', e => { if(e.target.files[0]) handleBaseFile(e.target.files[0]); });
+
+async function loadBaseFromUrl() {
+  const url = document.getElementById('baseUrl').value.trim(); if (!url) return;
+  showErr('baseErr', false);
+  try { baseImg = await loadImage(url); onBaseLoaded(); } catch { showErr('baseErr', true); }
+}
+async function loadBaseFromUrlMob() {
+  const url = document.getElementById('baseUrlMob').value.trim(); if (!url) return;
+  showErr('baseErrMob', false);
+  try { baseImg = await loadImage(url); onBaseLoaded(); } catch { showErr('baseErrMob', true); }
+}
+setupDrop('baseDrop', async file => { baseImg = await loadImage(await fileToDataUrl(file)); onBaseLoaded(); });
+
+function onBaseLoaded() {
+  canvas.width = baseImg.width; canvas.height = baseImg.height;
+  iconLayers.forEach(l => { setRange(`ix_${l.id}`, 0, baseImg.width, l.x); setRange(`iy_${l.id}`, 0, baseImg.height, l.y); });
+  textLayers.forEach(l => recalcLayerRange(l));
+  centreCanvas(); render();
+}
+
+// ─────────────────────────────────────────────────────────────
+// ICON LAYERS
+// ─────────────────────────────────────────────────────────────
+function addIconLayer(mob) {
+  iconCount++;
+  const id = 'I' + iconCount;
+  iconLayers.push({ id, img: null, x: 10, y: 10, scale: 100 });
+  activeIconId = id;
+  renderIconLayerUI();
+  render();
+  // Auto-open drawer panel on mobile
+  if (mob || isMobile()) {
+    const tab = document.querySelector('.mob-tab[data-panel="icons"]');
+    if (tab) mobTab(tab);
+  }
+}
+
+function removeIconLayer(id) {
+  iconLayers = iconLayers.filter(l => l.id !== id);
+  if (activeIconId === id) activeIconId = iconLayers.length ? iconLayers[iconLayers.length - 1].id : null;
+  renderIconLayerUI(); render();
+}
+
+function updateIconLayer(id, key, val) {
+  const l = iconLayers.find(l => l.id === id);
+  if (l) { l[key] = val; render(); }
+}
+
+function setActiveIcon(id) {
+  activeIconId = id;
+  document.querySelectorAll('.icon-layer').forEach(el => {
+    el.style.borderColor = el.dataset.id === id ? 'var(--accent)' : 'var(--border)';
+  });
+}
+
+async function loadIconFile(id, file) {
+  const img = await loadImage(await fileToDataUrl(file));
+  const l = iconLayers.find(l => l.id === id);
+  if (l) { l.img = img; render(); renderIconLayerUI(); }
+}
+
+async function loadIconUrl(id, suffix) {
+  const inputId = `iurl_${id}${suffix || ''}`;
+  const errId   = `ierr_${id}${suffix || ''}`;
+  const input = document.getElementById(inputId); if (!input) return;
+  const url = input.value.trim(); if (!url) return;
+  showErr(errId, false);
+  try {
+    const img = await loadImage(url);
+    const l = iconLayers.find(l => l.id === id);
+    if (l) { l.img = img; render(); renderIconLayerUI(); }
+  } catch { showErr(errId, true); }
+}
+
+function renderIconLayerUI() {
+  const w = canvas.width || 600, h = canvas.height || 400;
+
+  // Render into both desktop (#iconLayers) and mobile (#iconLayersMob)
+  [{ containerId: 'iconLayers', sfx: '' }, { containerId: 'iconLayersMob', sfx: 'Mob' }].forEach(({ containerId, sfx }) => {
+    const container = document.getElementById(containerId); if (!container) return;
+    container.innerHTML = '';
+
+    iconLayers.forEach((layer, i) => {
+      const isActive = layer.id === activeIconId;
+      const div = document.createElement('div');
+      div.className = 'text-layer icon-layer';
+      div.dataset.id = layer.id;
+      div.style.borderColor = isActive ? 'var(--accent)' : 'var(--border)';
+      div.style.cursor = 'pointer';
+      div.addEventListener('click', () => setActiveIcon(layer.id));
+
+      const hasImg = !!layer.img;
+      div.innerHTML = `
+        <div class="layer-header">
+          <span class="layer-title">Icon ${i + 1}${isActive ? ' ●' : ''}</span>
+          <button class="layer-remove" onclick="event.stopPropagation();removeIconLayer('${layer.id}')">✕</button>
+        </div>
+        ${hasImg ? `<div class="tag">IMAGE LOADED</div>` : `
+          <div class="drop-zone" id="idrop_${layer.id}${sfx}" style="margin-bottom:8px"
+            onclick="event.stopPropagation();document.getElementById('ifile_${layer.id}${sfx}').click()">
+            ${sfx ? 'Tap' : 'Drop or click'} to load image
+            <input type="file" id="ifile_${layer.id}${sfx}" accept="image/*"
+              onchange="loadIconFile('${layer.id}',this.files[0])">
+          </div>
+          <label>Or URL</label>
+          <input type="url" id="iurl_${layer.id}${sfx}" placeholder="https://..." style="margin-bottom:4px">
+          <div class="err" id="ierr_${layer.id}${sfx}">Could not load — try saving as file.</div>
+          <button class="btn btn-sm" onclick="event.stopPropagation();loadIconUrl('${layer.id}','${sfx}')" style="margin-bottom:8px">Load from URL</button>
+        `}
+        ${hasImg ? `
+          <div class="slider-row">
+            <span class="axis-lbl">X</span>
+            <input type="range" id="ix_${layer.id}${sfx}" min="0" max="${w}" value="${layer.x}"
+              oninput="sv('ix_${layer.id}${sfx}','ixn_${layer.id}${sfx}');updateIconLayer('${layer.id}','x',+this.value)">
+            <input type="number" class="num-val" id="ixn_${layer.id}${sfx}" value="${layer.x}"
+              onchange="ns('ixn_${layer.id}${sfx}','ix_${layer.id}${sfx}');updateIconLayer('${layer.id}','x',+this.value)">
+          </div>
+          <div class="slider-row">
+            <span class="axis-lbl">Y</span>
+            <input type="range" id="iy_${layer.id}${sfx}" min="0" max="${h}" value="${layer.y}"
+              oninput="sv('iy_${layer.id}${sfx}','iyn_${layer.id}${sfx}');updateIconLayer('${layer.id}','y',+this.value)">
+            <input type="number" class="num-val" id="iyn_${layer.id}${sfx}" value="${layer.y}"
+              onchange="ns('iyn_${layer.id}${sfx}','iy_${layer.id}${sfx}');updateIconLayer('${layer.id}','y',+this.value)">
+          </div>
+          <div class="slider-row">
+            <span class="axis-lbl">%</span>
+            <input type="range" id="isc_${layer.id}${sfx}" min="5" max="300" value="${layer.scale}"
+              oninput="sv('isc_${layer.id}${sfx}','iscn_${layer.id}${sfx}');updateIconLayer('${layer.id}','scale',+this.value)">
+            <input type="number" class="num-val" id="iscn_${layer.id}${sfx}" value="${layer.scale}"
+              onchange="ns('iscn_${layer.id}${sfx}','isc_${layer.id}${sfx}');updateIconLayer('${layer.id}','scale',+this.value)">
+          </div>
+          <p class="hint" style="margin-bottom:0">Tap/click canvas to snap position</p>
+        ` : ''}
+      `;
+
+      container.appendChild(div);
+
+      // Wire drag-drop for desktop drop zones
+      const dz = div.querySelector(`#idrop_${layer.id}${sfx}`);
+      if (dz) {
+        dz.addEventListener('dragover',  e => { e.preventDefault(); e.stopPropagation(); dz.classList.add('over'); });
+        dz.addEventListener('dragleave', e => { e.stopPropagation(); dz.classList.remove('over'); });
+        dz.addEventListener('drop', async e => {
+          e.preventDefault(); e.stopPropagation(); dz.classList.remove('over');
+          const file = e.dataTransfer.files[0]; if (file) loadIconFile(layer.id, file);
+        });
+      }
+    });
+  });
+}
+
+// ─────────────────────────────────────────────────────────────
+// TEXT LAYERS
+// ─────────────────────────────────────────────────────────────
+function addTextLayer(mob) {
+  layerCount++;
+  const id = 'L' + layerCount;
+  textLayers.push({ id, text: 'Label ' + layerCount, x: 20, y: 20 + (layerCount - 1) * 60,
+    size: 28, font: 'Arial', color: '#ffffff', bold: false, italic: false, align: 'left', lineHeight: 1.3 });
+  renderLayerUI(); render();
+  if (mob || isMobile()) {
+    const tab = document.querySelector('.mob-tab[data-panel="text"]');
+    if (tab) mobTab(tab);
+  }
+}
+
+function removeLayer(id) { textLayers = textLayers.filter(l => l.id !== id); renderLayerUI(); render(); }
+
+function updateLayer(id, key, val) {
+  const l = textLayers.find(l => l.id === id);
+  if (l) { l[key] = val; render(); }
+}
+
+function recalcLayerRange(l) {
+  const w = canvas.width, h = canvas.height;
+  ['', 'Mob'].forEach(sfx => {
+    setRange(`tx_${l.id}${sfx}`, -Math.round(w * 0.1), Math.round(w * 1.1), l.x);
+    setRange(`ty_${l.id}${sfx}`, -Math.round(h * 0.1), Math.round(h * 1.1), l.y);
+  });
+}
+
+// ─────────────────────────────────────────────────────────────
+// FONT COMBO
+// ─────────────────────────────────────────────────────────────
+function buildFontCombo(layerId, currentFont) {
+  const wrap = document.createElement('div');
+  wrap.className = 'font-combo-wrap';
+  const input = document.createElement('input');
+  input.type = 'text'; input.value = currentFont; input.placeholder = 'Search or type font…';
+  const dd = document.createElement('div');
+  dd.className = 'font-dd';
+
+  function fill(q) {
+    dd.innerHTML = '';
+    const src = allFonts();
+    const filtered = q ? src.filter(f => f.label.toLowerCase().includes(q.toLowerCase())) : src;
+    (filtered.length ? filtered : src).slice(0, 200).forEach(f => {
+      const opt = document.createElement('div');
+      opt.className = 'font-opt'; opt.textContent = f.label;
+      opt.style.fontFamily = `"${f.value}", sans-serif`;
+      opt.addEventListener('mousedown', ev => {
+        ev.preventDefault(); input.value = f.value;
+        dd.classList.remove('open'); updateLayer(layerId, 'font', f.value);
+      });
+      dd.appendChild(opt);
+    });
+  }
+
+  input.addEventListener('focus', async () => { await fontsReady; fill(input.value); dd.classList.add('open'); });
+  input.addEventListener('input', () => { fill(input.value); dd.classList.add('open'); updateLayer(layerId, 'font', input.value); });
+  input.addEventListener('blur', () => setTimeout(() => dd.classList.remove('open'), 160));
+  wrap.appendChild(input); wrap.appendChild(dd);
+  return wrap;
+}
+
+// ─────────────────────────────────────────────────────────────
+// LAYER UI — renders into both desktop + mobile containers
+// ─────────────────────────────────────────────────────────────
+function renderLayerUI() {
+  const w = canvas.width || 600, h = canvas.height || 400;
+  const xMin = -Math.round(w * 0.1), xMax = Math.round(w * 1.1);
+  const yMin = -Math.round(h * 0.1), yMax = Math.round(h * 1.1);
+
+  [{ containerId: 'textLayers', sfx: '' }, { containerId: 'textLayersMob', sfx: 'Mob' }].forEach(({ containerId, sfx }) => {
+    const container = document.getElementById(containerId); if (!container) return;
+    container.innerHTML = '';
+
+    textLayers.forEach((layer, i) => {
+      const div = document.createElement('div');
+      div.className = 'text-layer';
+      div.innerHTML = `
+        <div class="layer-header">
+          <span class="layer-title">Text ${i + 1}</span>
+          <button class="layer-remove" onclick="removeLayer('${layer.id}')">✕</button>
+        </div>
+        <label>Text — Enter for new line</label>
+        <textarea oninput="updateLayer('${layer.id}','text',this.value)">${escHtml(layer.text)}</textarea>
+        <div class="slider-row">
+          <span class="axis-lbl">X</span>
+          <input type="range" id="tx_${layer.id}${sfx}" min="${xMin}" max="${xMax}" value="${layer.x}"
+            oninput="sv('tx_${layer.id}${sfx}','txn_${layer.id}${sfx}');updateLayer('${layer.id}','x',+this.value)">
+          <input type="number" class="num-val" id="txn_${layer.id}${sfx}" value="${layer.x}"
+            onchange="ns('txn_${layer.id}${sfx}','tx_${layer.id}${sfx}');updateLayer('${layer.id}','x',+this.value)">
+        </div>
+        <div class="slider-row">
+          <span class="axis-lbl">Y</span>
+          <input type="range" id="ty_${layer.id}${sfx}" min="${yMin}" max="${yMax}" value="${layer.y}"
+            oninput="sv('ty_${layer.id}${sfx}','tyn_${layer.id}${sfx}');updateLayer('${layer.id}','y',+this.value)">
+          <input type="number" class="num-val" id="tyn_${layer.id}${sfx}" value="${layer.y}"
+            onchange="ns('tyn_${layer.id}${sfx}','ty_${layer.id}${sfx}');updateLayer('${layer.id}','y',+this.value)">
+        </div>
+        <div class="row">
+          <div>
+            <label>Size px</label>
+            <input type="number" value="${layer.size}" min="4" max="800" onchange="updateLayer('${layer.id}','size',+this.value)">
+          </div>
+          <div>
+            <label>Line H</label>
+            <input type="number" value="${layer.lineHeight}" min="0.5" max="5" step="0.05" onchange="updateLayer('${layer.id}','lineHeight',+this.value)">
+          </div>
+          <div>
+            <label>Align</label>
+            <select onchange="updateLayer('${layer.id}','align',this.value)">
+              <option ${layer.align==='left'   ?'selected':''} value="left">Left</option>
+              <option ${layer.align==='center' ?'selected':''} value="center">Ctr</option>
+              <option ${layer.align==='right'  ?'selected':''} value="right">Right</option>
+            </select>
+          </div>
+        </div>
+        <label>Font</label>
+        <div id="fc_${layer.id}${sfx}"></div>
+        <div class="color-row">
+          <input type="color" value="${layer.color}"
+            oninput="updateLayer('${layer.id}','color',this.value);this.nextElementSibling.value=this.value">
+          <input type="text" value="${layer.color}"
+            onchange="updateLayer('${layer.id}','color',this.value);this.previousElementSibling.value=this.value">
+        </div>
+        <div class="check-row">
+          <label><input type="checkbox" ${layer.bold   ?'checked':''} onchange="updateLayer('${layer.id}','bold',this.checked)"> Bold</label>
+          <label><input type="checkbox" ${layer.italic ?'checked':''} onchange="updateLayer('${layer.id}','italic',this.checked)"> Italic</label>
+        </div>
+      `;
+      container.appendChild(div);
+      div.querySelector(`#fc_${layer.id}${sfx}`).appendChild(buildFontCombo(layer.id, layer.font));
+    });
+  });
+}
+
+// ─────────────────────────────────────────────────────────────
+// RENDER
+// ─────────────────────────────────────────────────────────────
+function render() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  if (baseImg) {
+    ctx.drawImage(baseImg, 0, 0);
+  } else {
+    ctx.fillStyle = '#1a1a1a'; ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.fillStyle = '#555'; ctx.font = '15px sans-serif';
+    ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    ctx.fillText('Load a base stamp image to begin', canvas.width / 2, canvas.height / 2);
+  }
+  iconLayers.forEach(l => {
+    if (!l.img) return;
+    ctx.drawImage(l.img, l.x, l.y, l.img.width * l.scale / 100, l.img.height * l.scale / 100);
+  });
+  textLayers.forEach(l => {
+    ctx.font = `${l.italic?'italic ':''}${l.bold?'bold ':''}${l.size}px "${l.font}"`;
+    ctx.fillStyle = l.color; ctx.textAlign = l.align; ctx.textBaseline = 'top';
+    const lh = l.size * l.lineHeight;
+    l.text.split('\n').forEach((line, li) => ctx.fillText(line, l.x, l.y + li * lh));
+  });
+}
+
+// ─────────────────────────────────────────────────────────────
+// EXPORT / RESET
+// ─────────────────────────────────────────────────────────────
+function exportPNG() {
+  const a = document.createElement('a');
+  a.download = 'stamp_' + Date.now() + '.png';
+  a.href = canvas.toDataURL('image/png');
+  a.click();
+}
+
+function resetAll() {
+  if (!confirm('Reset everything?')) return;
+  baseImg = null; iconLayers = []; iconCount = 0; activeIconId = null;
+  textLayers = []; layerCount = 0;
+  canvas.width = 600; canvas.height = 400;
+  renderIconLayerUI(); renderLayerUI(); centreCanvas(); render();
+}
+
+// ─────────────────────────────────────────────────────────────
+// UTILS
+// ─────────────────────────────────────────────────────────────
+function toggleSection(el) {
+  el.classList.toggle('closed');
+  el.nextElementSibling.classList.toggle('closed');
+}
+
+function setupDrop(id, handler) {
+  const el = document.getElementById(id); if (!el) return;
+  el.addEventListener('dragover',  e => { e.preventDefault(); el.classList.add('over'); });
+  el.addEventListener('dragleave', ()  => el.classList.remove('over'));
+  el.addEventListener('drop', e => {
+    e.preventDefault(); el.classList.remove('over');
+    const file = e.dataTransfer.files[0]; if (file) handler(file);
+  });
+}
+
+// ─────────────────────────────────────────────────────────────
+// INIT
+// ─────────────────────────────────────────────────────────────
+updateHint();
+window.addEventListener('resize', updateHint);
+centreCanvas();
+renderIconLayerUI();
+render();
+</script>
+</body>
+</html>
